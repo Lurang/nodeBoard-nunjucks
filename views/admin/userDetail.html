@@ -1,0 +1,28 @@
+{% extends "index.html" %}
+
+{% block body %}
+    <div>
+        <div>
+            <form>
+                <span>ID: </span>
+                <input type="text" name="id" value="{{ user.c_id }}" readOnly></input>
+                <span>name: </span>
+                <input name='name' value={{ user.c_name }}></input>
+                <input type="submit" value="Fix" formAction="/user/updateUser", formmethod="POST"/>
+                <input type="submit" value="X" formAction="/user/deleteUser", formmethod="POST"/>
+            </form>
+        </div>
+    </div>
+
+    
+    <script>
+        const updateButton = document.getElementById('update')
+
+        updateButton.addEventListener('click', async() => {
+            const id = document.getElementById('id').value;
+            const name = document.getElementById('name').value;
+
+            const res = await fetch(`http://localhost:3000/~~`)
+        })
+    </script>
+{% endblock %}

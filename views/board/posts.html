@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+
+{% block body %}
+    <div class="container post post-index">
+        <table class="table table-sriped posts">
+            <thead>
+                <tr>
+                    <th class="title">Title</th>
+                    <th class="author">Author</th>
+                    <th class="date">Date</th>
+                </tr>
+            </thead>
+            <!-- db.forEach=> nunjucks의 for  -->
+            <tbody>
+                <tr>
+                    <td class="title">
+                        <a href="#"><div class="ellipsis">sampleTitle</div></a>
+                    </td>
+                    <td class="author">
+                        <div class="ellipsis">sampleAuthor</div>
+                    </td>
+                    <td class="date">
+                        sampledate
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

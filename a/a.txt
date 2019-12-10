@@ -1,0 +1,36 @@
+/    ->welcomepage?
+    
+/admin
+    /index
+        /getUser
+    /userManagement
+        /:id
+            /delete
+
+/user
+    /login
+        /get
+        /post => redierct/login
+    /logout
+        /get
+        /post?
+    /info (after session)
+        /get
+        /post => modify & redirect/info
+    /add
+        /post => signup
+    
+/board
+    /posts
+        get =>show list , paging?
+    /newPost
+        post => add article(?)
+    /posts/:id
+        put   => edit(user session)
+        delete  => delete
+    /
+
+    
+-sql-
+board
+title, body, auther, date;

@@ -1,0 +1,25 @@
+{
+  "name": "nodejs-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodejs ./app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "argon2": "^0.25.1",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-mysql-session": "^2.1.0",
+    "express-session": "^1.17.0",
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^2.0.1",
+    "nodemon": "^2.0.1",
+    "nunjucks": "^3.2.0",
+    "passport": "^0.4.0"
+  }
+}
