@@ -2,7 +2,7 @@ const argon2 = require('argon2');
 const user = require('../model/user');
 
 exports.getLogin = (req, res) => {
-    res.render('login')
+    res.render('user/login')
 }
 //loginCheck => setSession
 exports.postLogin = async (req, res) => {
@@ -52,7 +52,7 @@ exports.userAdd = async (req, res) => {
 exports.getInfo = async (req, res) => {
     const [rows] = await user.findById(req.session.user.id)
     
-    res.render('userInfo', {
+    res.render('user/userInfo', {
         "user" : rows[0],
         "session" : req.session.user     
     });
