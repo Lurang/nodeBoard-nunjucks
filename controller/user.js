@@ -23,6 +23,9 @@ exports.postLogin = async (req, res) => {
     let isAdmin = false;
     if (id === 'admin') {
         isAdmin = true;
+    } else if (id === 'ADMIN') {
+        res.send('error');
+        return;
     }
     //set session
     req.session.user = {
@@ -30,7 +33,6 @@ exports.postLogin = async (req, res) => {
         "isValid": true,
         "admin": isAdmin
     }
-    //req.session.count = 1;
     res.redirect('/')
 }
 //logOut => destroy session
@@ -59,22 +61,16 @@ exports.getInfo = async (req, res) => {
 exports.updateUser = async (req, res) => {
     const { id, name } = req.body;
     await user.updateById(id, name) 
-    /*
-     result => [{"fieldCount":0,"affectedRows":1,"insertId":0,"info":"Rows matched: 1  Changed: 1  Warnings: 0","serverStatus":2,"warningStatus":0,"changedRows":1},null]
-    */
     if (req.session.user.admin) {
         res.redirect('/admin/userManagement');
     } else {
-        res.redirect('/user/info');
+        res.redirect('/');
     }  
 }
 //  POST /user/deleteUser
 exports.delete = async (req, res) => {
     const { id } = req.body;
     await user.deleteById(id)
-    /*
-    result => [{"fieldCount":0,"affectedRows":1,"insertId":0,"info":"","serverStatus":2,"warningStatus":0},null]
-    */
     if (req.session.user.admin) {
         res.redirect('/admin/userManagement');
     } else {   

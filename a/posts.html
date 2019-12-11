@@ -1,0 +1,37 @@
+{% extends "index.html" %}
+
+{% block body %}
+<div id="mainWrapper">
+    <ul>
+        <!-- 게시판 제목 -->
+        <li> {{ boardName.board_name }} </li>
+
+        <!-- 게시판 목록  -->
+        <li>
+            <ul id ="ulTable">
+                <li>
+                    <ul>
+                        <li>No</li>
+                        <li>제목</li>
+                        <li>작성일</li>
+                        <li>작성자</li>
+                    </ul>
+                </li>
+                <!-- 게시물이 출력될 영역 -->
+                {% set index = 1 %}
+                {% for list in posts%}
+                    <li>
+                        <ul>
+                            <li class="center">{{ index }}</li>
+                            <li>{{ list.post_title }}</li><a href="/board/{{ boardName.board_id }}/{{ list.posts_id }}"></a>
+                            <li class="center">2019.12.11</li>
+                            <li class="center">{{ list.author }}</li>
+                        </ul>
+                    </li>	
+                {% set index = index +1 %}
+                {% endfor %}				
+            </ul>
+        </li>
+    </ul>
+</div>
+{% endblock %}

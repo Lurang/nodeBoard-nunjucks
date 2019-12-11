@@ -1,0 +1,19 @@
+{% extends "index.html" %}
+
+{% block body %}
+{% set index = 1 %}
+<table class="type01">
+        <tr>
+            <th>No.</th>
+            <th>게시판이름</th>
+        </tr>
+    {% for list in board%}
+        <tr>
+            <td><a href="/admin/boardManagement/{{list.board_id}}">{{ index }}</a></td>
+            <td>{{ list.board_name }}</td>
+        </tr> 
+        {% set index = index + 1 %}
+    {% endfor %}
+</table>
+<a href="/admin/boardAdd"><button>Add</button></a>
+{% endblock %}

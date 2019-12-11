@@ -1,0 +1,19 @@
+{% extends "index.html" %}
+
+{% block body %}
+<form action="/admin/boardAdd" method="POST">
+    <ul class="form-style">
+        <li>
+            <label>BoardName</label>
+            <input type="text" name="name" class="field-long"/>
+        </li>
+        <li>
+        <li>
+            <label>Admin-Only</label>
+            <input type="checkbox" name="admin" value="1"/>
+        </li>
+            <input type="submit" value="Add" />
+        </li>
+    </ul>
+</form>
+{% endblock %}

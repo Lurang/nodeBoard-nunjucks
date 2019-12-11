@@ -259,152 +259,82 @@ button.delete {
   color: white;
 }
 
-/**/
-/* global style */
-form label{
-  padding: 3px;
-  margin-bottom: 0;
-  font-weight: 300;
+/* post */
+
+body{
+  line-height:2em;		
+  font-family:"맑은 고딕";
 }
-form .form-control{
-  padding: 3px 7px;
-  font-size: inherit;
-  line-height: 20px;
-  height: auto;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  width: 100%;
+ul, li{ 
+    list-style:none;
+    padding:0;
+    margin:0;
+  }
+
+  #mainWrapper{
+    width: 800px;
+  margin: 0 auto; /*가운데 정렬*/
 }
-form fieldset{
-  margin: 7px 0 1px;
-  padding: 0px 15px;
-}
-form .form-group{
-  margin: 0;
-  padding-bottom: 6px;
-}
-.ellipsis{
-  display: block;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.form-horizontal .control-label {
-  padding-top: 5px;
-  text-align: left;
-}
-.buttons {
-  margin: 7px 0;
-  padding: 0 5px;
-}
-.buttons form{
-  display: inline-block;
-}
-.buttons .btn-default{
-  min-width: 55px;
-  color: #165751;
-  border: 1px solid #ccc;
-  border-right: 1px solid #aaa;
-  border-bottom: 1px solid #aaa;
-  border-radius: 4px;
-  padding: 5px 10px;
-  background-color: #f5f5f5;
-  font-size: 0.8em;
-  font-weight: bold;
-}
-.buttons .btn-default:hover{
-  text-decoration: none;
-  position: relative;
-  top: 1px;
-  left: 1px;
-  border: 1px solid #ccc;
-  border-top: 1px solid #aaa;
-  border-left: 1px solid #aaa;
-}
-.contentBox{
-  border-top: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
-}
-.contentBoxTop {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0;
-  border-bottom: 1px solid #ccc;
-  background-color: #F5F5F5;
-  padding: 6px 15px;
-}
-/* post style */
-.post {
-  max-width: 670px;
-  font-family: 'Open Sans', sans-serif;
-  font-size: 12px;
-}
-.post h2 {
-  color: tomato;
+
+#mainWrapper > ul > li:first-child {
   text-align: center;
+  font-size:14pt;
+  height:40px;
+  vertical-align:middle;
+  line-height:30px;
 }
-.post .post-body {
-  white-space: pre-line;
-  padding: 6px 15px 20px;
+
+#ulTable {margin-top:10px;}
+
+
+#ulTable > li:first-child > ul > li {
+  background-color:#c9c9c9;
+  font-weight:bold;
+  text-align:center;
 }
-.post .post-info{
-  font-size: 11px;
-  margin: 5px;
-  padding: 5px 10px;
-  background-color: #E4E4E4;
-  border: 0 solid black;
-  border-radius: 5px;
-}
-.post .post-info>div{
-  padding: 5px 0;
-  border-top: 1px dotted #999;
-}
-.post .post-info>div:first-child{
-  border-top: none;
-}
-.post .post-info span{
-  display: inline-block;
-  width: 40px;
-}
-.post-index .posts{
-  border-top: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
-  table-layout: fixed;
-}
-.post .posts th,
-.post .posts td
-{
-  padding: 7px 5px;
-}
-.post .posts th:first-child,
-.post .posts td:first-child
-{
-  padding-left: 15px;
-}
-.post .posts thead{
-  background-color: #F5F5F5;
-}
-.post .posts thead tr th{
-  border-bottom: 1px solid #ccc;
-}
-.post .posts tbody tr:nth-child(odd){
-  background-color: #F4FFFF;
-}
-.post .posts tbody .noData{
-  background-color: #FFFFFF;
-  text-align: center;
-}
-.post .posts .author{
-  text-align: center;
-  width: 80px;
-}
-.post .posts .date{
-  text-align: center;
-  width: 100px;
-  padding-right: 15px;
-}
-.post-new,
-.post-edit{
-  max-width: 520px;
-}
+
+  #ulTable > li > ul {
+    clear:both;
+    padding:0px auto;
+    position:relative;
+    min-width:40px;
+  }
+  #ulTable > li > ul > li { 
+    float:left;
+    font-size:10pt;
+    border-bottom:1px solid silver;
+    vertical-align:baseline;
+  }    
+
+  #ulTable > li > ul > li:first-child           	{width:10%;} /*No 열 크기*/
+  #ulTable > li > ul > li:first-child +li       	{width:45%;} /*제목 열 크기*/
+  #ulTable > li > ul > li:first-child +li+li    	{width:20%;} /*작성일 열 크기*/
+  #ulTable > li > ul > li:first-child +li+li+li 	{width:15%;} /*작성자 열 크기*/
+  #ulTable > li > ul > li:first-child +li+li+li+li{width:10%;} /*조회수 열 크기*/
+
+  #divPaging {
+    clear:both; 
+    margin:0 auto; 
+    width:220px; 
+    height:50px;
+  }
+
+  #divPaging > div {
+    float:left;
+    width: 30px;
+    margin:0 auto;
+    text-align:center;
+   }
+
+  #liSearchOption {clear:both;}
+  #liSearchOption > div {
+    margin:0 auto; 
+    margin-top: 30px; 
+    width:auto; 
+    height:100px; 
+   
+  }
+
+  .center {
+    text-align : center;
+  }

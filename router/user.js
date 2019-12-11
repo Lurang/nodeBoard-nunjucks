@@ -4,7 +4,6 @@ const userController = require('../controller/user')
 
 const router = express.Router();
 
-//routes
 //login
 router.route('/login')
     .get(userController.getLogin)

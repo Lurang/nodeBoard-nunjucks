@@ -1,0 +1,31 @@
+{% extends "index.html" %}
+
+{% block css %}
+    <style>
+        body {
+            padding-top: 70px;
+            padding-bottom: 30px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+{% endblock %}
+{% block body %}
+    <article>
+        <div class="container" role="main">
+            <h2>{{ boardInfo.board_name }}</h2>
+			<form action="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/updatePost" method="post">
+				<div class="mb-3">
+					<label for="title">제목</label>
+					<input type="text" class="form-control" name="title" id="title" value="{{ postInfo.post_title }}">
+                </div>
+                <div class="mb-3">
+					<label for="content">내용</label>
+					<textarea class="form-control" rows="5" name="body" id="body">{{ postInfo.post_body }}</textarea>
+				</div>			
+                <div>
+                    <button type="submit">저장</button>
+                </div>
+            </form>
+		</div>
+	</article>
+{% endblock %}

@@ -1,36 +1,157 @@
 /    ->welcomepage?
-    
-/admin
-    /index
+
+    /admin
         /getUser
-    /userManagement
+        /userManagement
+            /:id
+                POST to user/deleteUser
+                POST to user/modifyUser
+        /boardManagement
+            /:id
+        /POST update board
+        /POST delete board
+        /GET&POST add board
+
+    /user
+        /login
+            /get
+            /post (login) => redierct/login
+                (userAdd) => \\
+        /logout
+            /get
+            /post?
+        /info (after session)
+            /get  => postList?
+            /post => modifyUser & redirect/info
+                => deleteUser & session.destroy => redirect/info
+        
+    /board
         /:id
-            /delete
+            /addPost
+        /:boardId
+            /:id
+                /updatePost
+                /deletePost
 
-/user
-    /login
-        /get
-        /post => redierct/login
-    /logout
-        /get
-        /post?
-    /info (after session)
-        /get
-        /post => modify & redirect/info
-    /add
-        /post => signup
-    
-/board
-    /posts
-        get =>show list , paging?
-    /newPost
-        post => add article(?)
-    /posts/:id
-        put   => edit(user session)
-        delete  => delete
-    /
-
+-------------------------------------------------------------
     
 -sql-
+
+board_information
+        --
+board_id    int(11) PK auto_increment
+admin       tinyint(1)==boolean  (1=admin, else notadmin)
+
 board
-title, body, auther, date;
+        ``
+post_id     int(11) PK auto_increment
+author      varchar(50) =>작성자
+post_title  varchar(255)
+post_body   varchar(255)
+board_id    int(11) FK from board_information -> board_id
+date        current_timestamp on update current_timestamp
+
+customer
+        ``
+c_id        varchar(50)    PK
+c_name      varchar(50)
+password    varchar(255)   argon2Hash
+
+or
+게시판      게시글번호(auto increase, pk), 게시글제목, 게시글내용, 작성자, date, 게시판 ID(from info)
+댓글        => 게시글번호..?
+게시판Info? => 글쓰기 권한체크(forAdmin 1 or 0?), 게시판이름, 게시판ID(autoincre, PK)
+
+게시판추가 => 게시판 infomation 테이블에 추가 => view페이지에서 몇개있는지 받아온후 이름별로 게시글페이지만들듯?
+게시판삭제 => 게시판번호에맞는 게시글 삭제후 게시판삭제?
+
+게시글추가 => 비로그인시 추가불가, 관리자게시글에는 관리자만추가가능
+게시글수정,삭제 => 작성자와같으면 해당게시글 수정,삭제
+
+댓글...
+
+
+게시판information => boardId(int, pk, autoincre), admin(boolean), boardName(varchar), 
+게시판           => postId(int, pk, autoincre), author(varchar 50), postTitle(varchar 255), postBody(varchar 255),
+                    date(Date), boardId(fk)
+
+board별로 boarId가 정렬이안됨 => 그냥 개수별로 따로처리해주고 postId는 뒤에서만돌려야할듯 (order by date,)?
+
+
+create table board_information (
+    board_id int auto_increment,
+    admin boolean,
+    board_name varchar(255),
+    primary key(board_id)
+)default charset=utf8;
+
+create table board (
+    post_id int auto_increment,
+    author varchar(50),
+    post_title varchar(255),
+    post_body varchar(255),
+    board_id int,
+    date datetime default current_timestamp on update current_timestamp,
+    primary key (post_id),
+    foreign key (board_id) references board_information (board_id) on delete cascade on update cascade    
+)default charset=utf8;
+
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지", "테스트", 1);
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지2", "테스트2", 1);
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지3", "테스트3", 1);
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지4", "테스트4", 1);
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지5", "테스트5", 1);
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지6", "테스트6", 1);
+
+
+insert into board (author, post_title, post_body, board_id) 
+values ('1', "everyone", "테스트", 2);
+insert into board (author, post_title, post_body, board_id) 
+values ('hi', "every-one", "테스트", 2);
+insert into board (author, post_title, post_body, board_id) 
+values ('hello', "every one", "테스트", 2);
+
+
+FOREIGN KEY (customer_sid) REFERENCES customer (sid) ON DELETE CASCADE
+
+
+auto_increment 재설정
+set @cnt=0;
+update board_information set board_information.board_id=@cnt:=@cnt+1;
+alter table board_information auto_increment=1;
+
+------------------------------------------------
+css
+postAdd.html
+{% block css %}
+    <style>
+        body {
+            padding-top: 70px;
+            padding-bottom: 30px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+{% endblock %}
+
+
+
+///////////////////////////////////
+12-11
+게시글수가 많아질테니 페이징필요, => db관련 불러오는거 다바꿔야할듯?
+댓글... -> db추가 ajax  model추가
+---
+사용자페이지에 갔을때 자기가 작성한글 관리가능하게?
+
+table comments
+comment_number int
+id varchar(50) not null
+
+post_id (fk from board, on delete cascade, on update cascade)
+
+

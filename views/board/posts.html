@@ -1,29 +1,41 @@
 {% extends "index.html" %}
 
 {% block body %}
-    <div class="container post post-index">
-        <table class="table table-sriped posts">
-            <thead>
-                <tr>
-                    <th class="title">Title</th>
-                    <th class="author">Author</th>
-                    <th class="date">Date</th>
-                </tr>
-            </thead>
-            <!-- db.forEach=> nunjucks의 for  -->
-            <tbody>
-                <tr>
-                    <td class="title">
-                        <a href="#"><div class="ellipsis">sampleTitle</div></a>
-                    </td>
-                    <td class="author">
-                        <div class="ellipsis">sampleAuthor</div>
-                    </td>
-                    <td class="date">
-                        sampledate
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div id="mainWrapper">
+        <ul>
+            <li>
+                <li> {{ boardName.board_name }} </li>
+                <ul id="ulTable">
+                    <li>
+                        <ul>
+                            <li>No</li>
+                            <li>제목</li>
+                            <li>작성일</li>
+                            <li>작성자</li>
+                        </ul>
+                    </li>
+                    <!-- index = 1 * page * page당글갯수 -->
+                    {% set index = 1 %}
+                    {% for list in posts%}
+                        <li>
+                            <ul>
+                                <li class="center">{{ index }}</li>
+                                <li><a href="/board/{{ boardName.board_id }}/{{ list.post_id }}">{{ list.post_title }}</a></li>
+                                <li class="center">{{ list.date }}</li>
+                                <li class="center">{{ list.author }}</li>
+                            </ul>
+                        </li>	
+                    {% set index = index +1 %}
+                    {% endfor %}				
+                </ul>
+            </li>
+        </ul>   
+        {% if session.isValid %}
+            {% if session.admin %}
+                <a href="/board/{{ boardName.board_id }}/addPost"><button>NEW POST</button></a>
+            {% elif boardName.admin == false %}
+                <a href="/board/{{ boardName.board_id }}/addPost"><button>NEW POST</button></a>
+            {% endif %}
+        {% endif %}
     </div>
 {% endblock %}
