@@ -15,27 +15,65 @@
                         </ul>
                     </li>
                     <!-- index = 1 * page * page당글갯수 -->
-                    {% set index = 1 %}
-                    {% for list in posts%}
+
+                    {% set index = page.index | int %}
+                    {% for list in posts %}
+                        {% set index = index + 1 %}
                         <li>
                             <ul>
                                 <li class="center">{{ index }}</li>
-                                <li><a href="/board/{{ boardName.board_id }}/{{ list.post_id }}">{{ list.post_title }}</a></li>
+                                <li><a href="/board/{{ boardName.board_id }}/{{ list.post_id }}?page={{ page.currentPage }}">{{ list.post_title }}</a></li>
                                 <li class="center">{{ list.date }}</li>
                                 <li class="center">{{ list.author }}</li>
                             </ul>
                         </li>	
-                    {% set index = index +1 %}
                     {% endfor %}				
                 </ul>
             </li>
+            <li>
+				<div id="divPaging">
+                    <div>◀</div>
+                    {% for i in range(1, page.maxPage + 1) %}
+                    <div><a href="/board/{{ boardName.board_id }}?page={{ i }}">{{ i }}</a></div>
+                    {% endfor %}
+                    <div>▶</div>
+				</div>
+                <!--
+				<div id="divPaging">
+                    <div><a href="/board/{{ boardName.board_id }}?page=1">◀</a></div>
+                    {% set cpage = page.currentPage %}
+                    <div>{{cpage}}</div>
+                    {% if cpage == 1 %}
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage }}">{{ cpage }}</a></div>
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage + 1 }}">{{ cpage + 1 }}</a></div>
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage + 2 }}">{{ cpage + 2 }}</a></div>
+                    {% elif cpage == maxPage %}
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage - 2 }}">{{ cpage - 2 }}</a></div>
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage - 1 }}">{{ cpage - 1 }}</a></div>
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage + 1 }}">{{ cpage }}</a></div>
+                    {% elif cpage == page.maxPage - 1 or cpage == page.currentPage + 1 %}
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage - 1 }}">{{ cpage - 1}}</a></div>
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage }}">{{ cpage }}</a></div>
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage + 1 }}">{{ cpage + 1 }}</a></div>
+                    {% else %}
+                        <div>...</div>
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage - 1 }}">{{ cpage - 1}}</a></div>
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage }}">{{ cpage }}</a></div>
+                        <div><a href="/board/{{ boardName.board_id }}?page={{ cpage + 1 }}">{{ cpage + 1 }}</a></div>
+                        <div>...</div>
+                    {% endif %}
+                    <div><a href="/board/{{ boardName.board_id }}?page={{ page.maxPage }}">▶</a></div>
+                </div>
+                -->
+            </li>
+            {% if session.isValid %}
+                {% if session.admin or boardName.admin == false %}
+                    <li>
+                        <a href="/board/{{ boardName.board_id }}/addPost?page={{ page.currentPage }}"><button>NEW POST</button></a>
+                    </li>
+                {% endif %}
+            {% endif %}            
         </ul>   
-        {% if session.isValid %}
-            {% if session.admin %}
-                <a href="/board/{{ boardName.board_id }}/addPost"><button>NEW POST</button></a>
-            {% elif boardName.admin == false %}
-                <a href="/board/{{ boardName.board_id }}/addPost"><button>NEW POST</button></a>
-            {% endif %}
-        {% endif %}
     </div>
+    
 {% endblock %}

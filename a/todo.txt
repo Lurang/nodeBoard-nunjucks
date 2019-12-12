@@ -57,26 +57,12 @@ c_id        varchar(50)    PK
 c_name      varchar(50)
 password    varchar(255)   argon2Hash
 
-or
-게시판      게시글번호(auto increase, pk), 게시글제목, 게시글내용, 작성자, date, 게시판 ID(from info)
-댓글        => 게시글번호..?
-게시판Info? => 글쓰기 권한체크(forAdmin 1 or 0?), 게시판이름, 게시판ID(autoincre, PK)
-
-게시판추가 => 게시판 infomation 테이블에 추가 => view페이지에서 몇개있는지 받아온후 이름별로 게시글페이지만들듯?
-게시판삭제 => 게시판번호에맞는 게시글 삭제후 게시판삭제?
-
-게시글추가 => 비로그인시 추가불가, 관리자게시글에는 관리자만추가가능
-게시글수정,삭제 => 작성자와같으면 해당게시글 수정,삭제
 
 댓글...
 
-
 게시판information => boardId(int, pk, autoincre), admin(boolean), boardName(varchar), 
-게시판           => postId(int, pk, autoincre), author(varchar 50), postTitle(varchar 255), postBody(varchar 255),
+게시판            => postId(int, pk, autoincre), author(varchar 50), postTitle(varchar 255), postBody(varchar 255),
                     date(Date), boardId(fk)
-
-board별로 boarId가 정렬이안됨 => 그냥 개수별로 따로처리해주고 postId는 뒤에서만돌려야할듯 (order by date,)?
-
 
 create table board_information (
     board_id int auto_increment,
@@ -96,6 +82,31 @@ create table board (
     foreign key (board_id) references board_information (board_id) on delete cascade on update cascade    
 )default charset=utf8;
 
+
+create table comment (
+    comment_id int auto_increment,
+    comment_author varchar(50),
+    post_id int,
+    comment_body varchar(255),
+    date datetime default current_timestamp on update current_timestamp,
+    primary key (comment_id),
+    foreign key (post_id) references board (post_id) on delete cascade on update cascade    
+) default charset=utf8;
+
+
+
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지", "테스트", 1);
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지2", "테스트2", 1);
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지3", "테스트3", 1);
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지4", "테스트4", 1);
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지5", "테스트5", 1);
+insert into board (author, post_title, post_body, board_id) 
+values ('admin', "공지6", "테스트6", 1);
 insert into board (author, post_title, post_body, board_id) 
 values ('admin', "공지", "테스트", 1);
 insert into board (author, post_title, post_body, board_id) 
@@ -141,17 +152,55 @@ postAdd.html
 
 
 
+
+select b.board_name, a.* from board_information b, board a
+where a.author = "admin" and a.board_id = b.board_id
+
+
+select R1.* from (
+select b.board_name, a.* from board_information b, board a where a.author = "1" and a.board_id = b.board_id
+) R1 limit 10 offset 0
+
+
+select count(*) count from (
+    select a.* from board_information b, board a where b.board_id = 1 and b.board_id = a.board_id
+) R1;
+select count(*) count from (
+    select a.* from board_information b, board a where b.board_id = ? and b.board_id = a.board_id
+) R1;
+
 ///////////////////////////////////
-12-11
-게시글수가 많아질테니 페이징필요, => db관련 불러오는거 다바꿔야할듯?
-댓글... -> db추가 ajax  model추가
----
-사용자페이지에 갔을때 자기가 작성한글 관리가능하게?
+12-12
+사용자 - id
+게시글의 - author
+    bt 삭제시 bt가쓴글 3개 삭제?
 
-table comments
-comment_number int
-id varchar(50) not null
-
-post_id (fk from board, on delete cascade, on update cascade)
+    delete from (
+        select c.c_id, b.author from customer c, board b where b.author = 'bt' and c.c_id = 'bt'
+    ) R1
 
 
+    관리자전용게시글 글쓰는곳인데 일반사용자가 접근
+    http://localhost:3000/board/1/addPost?page=1
+
+    +  일반사용자게시글에 비로그인한사람이 글쓰기
+    http://localhost:3000/board/2/addPost?page=1
+    수정
+    http://localhost:3000/board/2/7/updatePost?page=1
+
+    get MEthod들에대해 전부 예외처리가 필요한시점
+
+    board
+        /:boardId
+        /:boardId/addPost
+        /:boardId/:postId
+        /:boardId/:postId/updatePost
+    
+    user
+        /logout
+        /info
+        
+
+
+    
+        

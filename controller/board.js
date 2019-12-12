@@ -1,75 +1,141 @@
 const user = require('../model/user')
 const board = require('../model/board')
 
-//  GET  /:id  =>render posts.html
+const postPerPage = 10;
+
+const isLoggedin = (req, res, next) => {
+    if(req.session.user){
+        return next();
+    }
+    res.redirect('/')
+}
+
+//  GET  /:boardId  =>render posts.html
 exports.postsList = async (req, res) => {
-    const boardId = req.params.id;
-    const [rows] = await board.boardList();
-    const [posts] = await board.postList(boardId);
-    const [boardInfo] = await board.searchBoard(boardId);
+    const { boardId } = req.params;
+    let page = req.query.page || 1;  //default = 1
+    const [[maxPost], [rows], [boardInfo]] = await Promise.all([
+        board.maxPost(boardId),
+        board.boardList(),
+        board.searchBoard(boardId),
+    ])
+    const maxPage = Math.ceil(maxPost[0].count / postPerPage);
+    if (page > maxPage && maxPage != 0) {
+        page = maxPage;
+    }   
+    const [posts] = await board.postList(boardId, postPerPage, ((page - 1) * postPerPage))
     res.render('board/posts', {
         "session" : req.session.user,
         "board" : rows,
         "posts" : posts,
-        "boardName" : boardInfo[0]
+        "boardName" : boardInfo[0],
+        "page" : {
+            "maxPage" : maxPage,
+            "currentPage" : page,
+            "index" : (page - 1) * postPerPage
+        }
     })
 }
-//  GET/POST  /board/:id/addPost
+//  GET/POST  /board/:boardId/addPost
 exports.getAddPost = async (req, res) => {
-    const { id } = req.params;
-    const [rows] = await board.boardList();
-    const [boardInfo] = await board.searchBoard(id);
-    res.render('board/postAdd', {
-        "session" : req.session.user,
-        "board" : rows,
-        "boardInfo" : boardInfo[0]
-    })
+    const page = req.query.page || 1;
+    const { boardId } = req.params;
+    if(!req.session.user) {
+        res.redirect(`/board/${ boardId }`);
+    } else {
+        const [rows] = await board.boardList();
+        const [boardInfo] = await board.searchBoard(boardId);
+        res.render('board/postAdd', {
+            "session" : req.session.user,
+            "board" : rows,
+            "boardInfo" : boardInfo[0],
+            "page" : page
+        })
+    }
 }
 exports.postAddPost = async (req, res) => {
-    const id = req.params.id;
+    const page = req.query.page || 1;
+    const { boardId } = req.params;
     const author = req.session.user.id;
     const { title, body} = req.body;
-    await board.addPost( author, title, body, id);
-    res.redirect(`/board/${id}`);
+    let test = title;
+    if(test.trim() !== '') {
+        await board.addPost(author, title, body, boardId);
+    }
+    res.redirect(`/board/${ boardId }?page=${ page }`);
 }
 //  GET /board/:boardId/:postId
 exports.detailPost = async (req, res) => {
+    const page = req.query.page || 1 ;
     const { boardId, postId } = req.params;
-    const [rows] = await board.boardList();
-    const [boardInfo] = await board.searchBoard(boardId);
-    const [postInfo] = await board.searchPost(postId);
+    const [[rows], [boardInfo], [postInfo], [comment]] = await Promise.all([
+        board.boardList(),
+        board.searchBoard(boardId),
+        board.searchPost(postId),
+        board.getComment(postId)
+    ])
     res.render('board/postDetail', {
         "session" : req.session.user,
         "board" : rows,
         "boardInfo" : boardInfo[0],
-        "postInfo" : postInfo[0]
+        "postInfo" : postInfo[0],
+        "page" : page,
+        "comment" : comment
     })
-    //아이디들과 정보를 얻어서 가져가겠음
-    //res.render()
 }
-// POST /board/:boardId/:postId/update(delete)Post
+//  GET /board/:boardId/:postId/updatePost
 exports.getUpdatePost = async (req, res) => {
+    const page = req.query.page || 1;
     const { boardId, postId } = req.params;
+    const [[rows], [boardInfo], [postInfo]] = await Promise.all([
+        board.boardList(),
+        board.searchBoard(boardId),
+        board.searchPost(postId)
+    ])
+    /* 
     const [rows] = await board.boardList();
     const [boardInfo] = await board.searchBoard(boardId);
     const [postInfo] = await board.searchPost(postId);
+    */
+    
     res.render('board/postUpdate', {
         "session" : req.session.user,
         "board" : rows,
         "boardInfo" : boardInfo[0],
-        "postInfo" : postInfo[0]
+        "postInfo" : postInfo[0],
+        "page" : page
     })
-
 }
+//  POST /board/:boardId/:postId/update(delete)Post
 exports.postUpdatePost = async (req, res) => {
+    const page = req.query.page || 1;
     const { title, body } = req.body;
     const { boardId, postId } = req.params;
     await board.updatePost(title, body, postId);
-    res.redirect(`/board/${boardId}/${postId}`);
+    res.redirect(`/board/${ boardId }/${ postId }?page=${ page }`);
 }
-
 exports.deletePost = async (req, res) => {
+    const page = req.query.page || 1;
     const { boardId, postId } = req.params;
     await board.deletePost(postId);
-    res.redirect(`/board/${boardId}`);
+    res.redirect(`/board/${ boardId }?page=${ page }`);
+}
+//  POST /board/:boardId/:postId/addComment?page={{ page }}
+exports.addComment = async (req, res) => {
+    const page = req.query.page || 1;
+    const { comment } = req.body;
+    const { id } = req.session.user;
+    const { boardId, postId } = req.params;
+    let test = comment;
+    if( test.trim() !== '') {
+        await board.addComment(comment, postId, id);
+    }
+    res.redirect(`/board/${boardId}/${postId}?page=${page}`);
+}   
+//  POST /board/:boardId/:postId/deleteComment/:commentId?page={{ page }}
+exports.deleteComment = async (req, res) => {
+    const page = req.query.page || 1;
+    const { boardId, postId, commentId } = req.params;
+    await board.deleteComment(commentId);
+    res.redirect(`/board/${boardId}/${postId}?page=${page}`);
 }

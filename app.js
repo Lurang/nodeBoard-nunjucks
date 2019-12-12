@@ -37,11 +37,11 @@ app.use(session({
 }))
 
 //nunjucks
-app.set('view engine', 'html');
-const env = nunjucks.configure(['views/'],{
+nunjucks.configure(['views/'],{
     autoescape: true,
     express: app,
 });
+app.set('view engine', 'html');
 
 //cors error
 app.use(cors())
@@ -56,7 +56,7 @@ app.use((req, res ,next) => {
 //checkPermission
 const checkLogin = (req, res, next) => {
     if(req.session){
-        if(req.session.user) {
+        if(req.session.user){
             return next();
         }
     }
@@ -64,12 +64,8 @@ const checkLogin = (req, res, next) => {
 }
 
 const auth = (req, res, next) => {
-    if(req.session){
-        if(req.session.user) {
-            if(req.session.user.admin) {
-                return next();
-            } 
-        }
+    if(req.session && req.session.user && req.session.user.admin){
+        return next();
     }
     res.redirect('/');
 }

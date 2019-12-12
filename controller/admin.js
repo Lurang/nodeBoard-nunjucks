@@ -1,6 +1,8 @@
 const user = require('../model/user');
 const board = require('../model/board');
 
+const postPerPage = 10;
+
 //  /admin
 exports.getInfo = (req, res) => {
     res.render('admin/admin', {
@@ -19,13 +21,26 @@ exports.getUser = async (req, res) => {
 //  /admin/userManagement/:id
 exports.userDetail = async (req, res) => {
     const { id } = req.params;
-    const [rows] = await user.findById(id);
-
+    let page = req.query.page || 1;  //default = 1
+    const [[rows], [maxPost]] = await Promise.all([
+        user.findById(id),
+        board.maxUserPost(id)
+    ])
+    const maxPage = Math.ceil(maxPost[0].count / postPerPage);
+    if(page > maxPage && maxPage != 0) {
+        page = maxPage;
+    }
+    const [posts] = await board.userPost(id, postPerPage, ((page - 1) * postPerPage))
     res.render('admin/userDetail', {
         "session" : req.session.user,
-        "user" : rows[0]
+        "user" : rows[0],
+        "posts" : posts,
+        "maxPage" : maxPage
     });
 }
+
+/*   --  board  --   */
+
 //  /admin/boardManagement
 exports.boardManagement = async (req, res) => {
     const [rows] = await board.boardList();
@@ -38,17 +53,20 @@ exports.boardManagement = async (req, res) => {
 // /admin/boardManagement/:id
 exports.boardDetail = async (req, res) => {
     const { id } = req.params
-    const [rows] = await board.searchBoard(id);
-
+    const [[rows], [count]] = await Promise.all([
+        board.searchBoard(id),
+        board.countPost(id)
+    ])
     res.render('admin/boardDetail', {
         "session" : req.session.user,
         "board" : rows[0],
+        "count" : count[0]
     })
 }
 //  /admin/boardUpdate
 exports.boardUpdate = async (req, res) => {
     let { id, admin, name } = req.body;
-    if ( !admin ) {
+    if(!admin) {
         admin = 0;
     }
     await board.updateBoard(id, name, admin);
@@ -70,7 +88,7 @@ exports.getBoardAdd = (req, res) => {
 }
 exports.postBoardAdd = async (req, res) => {
     let { name, admin } = req.body;
-    if ( !admin ) {
+    if(!admin) {
         admin = 0;
     }
     await board.addBoard(name, admin);

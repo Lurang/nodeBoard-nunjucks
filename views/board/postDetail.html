@@ -16,12 +16,55 @@
         </div>
     </article>
     <div>
-        <a href="/board/{{ boardInfo.board_id }}"><button type="button">목록으로</button></a>
+        <a href="/board/{{ boardInfo.board_id }}?page={{ page }}"><button type="button">목록으로</button></a>
         {% if session.admin or postInfo.author == session.id %}			
-            <a href="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/updatePost"><button type="button">수정</button></a>
-            <form action="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/deletePost" method="POST">
+            <a href="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/updatePost?page={{ page }}"><button type="button">수정</button></a>
+            <form action="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/deletePost?page={{ page }}" method="POST">
                 <button type="submit">삭제</button>
             </form>
         {% endif %}
+    </div>
+    
+    <div>
+        <h2>comment</h2>
+        <form action="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/addComment?page={{ page }}" method="POST">
+            <div class="mb-3">
+            <input type="text" class="form-control" name="comment" id="comment">
+            <input type="submit" value="저장">
+        </form>
+    </div>
+    <div id="mainWrapper2">
+        <ul>
+            <li>
+                <ul id="ulTable2">    
+                    <li>
+                        <ul>
+                            <li>내용</li>
+                            <li>작성자</li>
+                            <li>작성일</li>
+                            <li>삭제</li>
+                        </ul>
+                    </li>
+                    {% for com in comment %}
+                    <li>
+                        <ul>
+                            <li class="left">{{ com.comment_body }}</li>
+                            <li>{{ com.comment_author }}</li>
+                            <li class="left">{{ com.date }}</li>
+                            {% if session.isValid %}
+                                {% if session.admin or com.comment_author == session.id %}
+                                    <li>
+                                        <form>
+                                            <input type="submit" value="X" formAction="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/deleteComment/{{ com.comment_id }}?page={{ page }}", formmethod="POST"/>
+                                        </form>
+                                    </li>
+                                {% endif %}
+                            {% endif %}  
+                        </ul>
+                    </li>	
+                    {% endfor %}
+                </ul>
+            </li>
+        </ul>
     </div>
 {% endblock %}

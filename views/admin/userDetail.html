@@ -22,4 +22,44 @@
             </form>
         </div>
     </div>
+
+    <div id="mainWrapper">
+        <ul>
+            <li>
+                <ul id="ulTable">
+                    <li>
+                        <ul>
+                            <li>게시판</li>
+                            <li>제목</li>
+                            <li>작성일</li>
+                            <li>작성자</li>
+                        </ul>
+                    </li>
+                    {% for list in posts%}
+                        <li>
+                            <ul>
+                                <li class="center">{{ list.board_name }}</li>
+                                <li><a href="/board/{{ list.board_id }}/{{ list.post_id }}">{{ list.post_title }}</a></li>
+                                <li class="center">{{ list.date }}</li>
+                                <li class="center">{{ list.author }}</li>
+                            </ul>
+                        </li>
+                    {% endfor %}
+                    <li>
+                        {% if maxPage %}
+                            <div id="divPaging">
+                                <div>◀</div>
+                                {% for i in range(1, maxPage + 1) %}
+                                    {% block paging %}
+                                        <div><a href="/admin/userManagement/{{ user.c_id }}?page={{ i }}">{{ i }}</a></div>
+                                    {% endblock %}
+                                {% endfor %}
+                                <div>▶</div>
+                            </div>
+                        {% endif %}
+                    </li>				
+                </ul>
+            </li>
+        </ul>   
+    </div>
 {% endblock %}

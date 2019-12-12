@@ -1,5 +1,9 @@
 const argon2 = require('argon2');
+
 const user = require('../model/user');
+const board = require('../model/board');
+
+const postPerPage = 10;
 
 exports.getLogin = (req, res) => {
     res.render('user/login')
@@ -50,11 +54,22 @@ exports.userAdd = async (req, res) => {
 }
 // ??
 exports.getInfo = async (req, res) => {
-    const [rows] = await user.findById(req.session.user.id)
-    
+    let page = req.query.page || 1;  //default = 1
+    const [[rows], [maxPost]] = await Promise.all([
+        user.findById(req.session.user.id),
+        board.maxUserPost(req.session.user.id)
+    ])
+    //case over maxpage
+    const maxPage = Math.ceil(maxPost[0].count / postPerPage);
+    if (page > maxPage) {
+        page = maxPage;
+    }
+    const [posts] = await board.userPost(req.session.user.id, postPerPage, ((page - 1) * postPerPage))
     res.render('user/userInfo', {
         "user" : rows[0],
-        "session" : req.session.user     
+        "session" : req.session.user,
+        "posts" : posts,
+        "maxPage" : maxPage
     });
 }
 //  POST /user/updateUser
