@@ -13,7 +13,7 @@ exports.getInfo = (req, res) => {
 exports.getUser = async (req, res) => {
     const [rows] = await user.fetchAll();
 
-    res.render('admin/users', {
+    res.render('admin/userManagement', {
         users: rows,
         "session": req.session.user
     });
@@ -21,7 +21,10 @@ exports.getUser = async (req, res) => {
 //  /admin/userManagement/:id
 exports.userDetail = async (req, res) => {
     const { id } = req.params;
-    let page = req.query.page || 1;  //default = 1
+    let page = req.query.page || 1;
+    if( page <= 0 ) {
+        page = 1;
+    }
     const [[rows], [maxPost]] = await Promise.all([
         user.findById(id),
         board.maxUserPost(id)
@@ -39,7 +42,7 @@ exports.userDetail = async (req, res) => {
     });
 }
 
-/*   --  board  --   */
+//   --  board  --   
 
 //  /admin/boardManagement
 exports.boardManagement = async (req, res) => {

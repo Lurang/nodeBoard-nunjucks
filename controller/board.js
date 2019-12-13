@@ -1,28 +1,26 @@
-const user = require('../model/user')
 const board = require('../model/board')
 
 const postPerPage = 10;
-
-const isLoggedin = (req, res, next) => {
-    if(req.session.user){
-        return next();
-    }
-    res.redirect('/')
-}
 
 //  GET  /:boardId  =>render posts.html
 exports.postsList = async (req, res) => {
     const { boardId } = req.params;
     let page = req.query.page || 1;  //default = 1
+    if( page <= 0 ) {
+        page = 1;
+    }
     const [[maxPost], [rows], [boardInfo]] = await Promise.all([
         board.maxPost(boardId),
         board.boardList(),
         board.searchBoard(boardId),
     ])
+    if (boardInfo[0] === undefined) {
+        return res.redirect('/')
+    }
     const maxPage = Math.ceil(maxPost[0].count / postPerPage);
     if (page > maxPage && maxPage != 0) {
         page = maxPage;
-    }   
+    }
     const [posts] = await board.postList(boardId, postPerPage, ((page - 1) * postPerPage))
     res.render('board/posts', {
         "session" : req.session.user,
@@ -39,19 +37,28 @@ exports.postsList = async (req, res) => {
 //  GET/POST  /board/:boardId/addPost
 exports.getAddPost = async (req, res) => {
     const page = req.query.page || 1;
+    if( page <= 0 ) {
+        page = 1;
+    }
     const { boardId } = req.params;
     if(!req.session.user) {
-        res.redirect(`/board/${ boardId }`);
-    } else {
-        const [rows] = await board.boardList();
-        const [boardInfo] = await board.searchBoard(boardId);
-        res.render('board/postAdd', {
-            "session" : req.session.user,
-            "board" : rows,
-            "boardInfo" : boardInfo[0],
-            "page" : page
-        })
+        return res.redirect(`/board/${ boardId }`);
     }
+    const [rows] = await board.boardList();
+    const [boardInfo] = await board.searchBoard(boardId);
+
+    if (boardInfo[0] === undefined) {
+        return res.redirect('/')
+    }
+    if(boardInfo[0].admin && !req.session.user.admin) {
+        return res.redirect(`/board/${ boardId }`);
+    }
+    res.render('board/postAdd', {
+        "session" : req.session.user,
+        "board" : rows,
+        "boardInfo" : boardInfo[0],
+        "page" : page
+    })
 }
 exports.postAddPost = async (req, res) => {
     const page = req.query.page || 1;
@@ -67,6 +74,9 @@ exports.postAddPost = async (req, res) => {
 //  GET /board/:boardId/:postId
 exports.detailPost = async (req, res) => {
     const page = req.query.page || 1 ;
+    if( page <= 0 ) {
+        page = 1;
+    }
     const { boardId, postId } = req.params;
     const [[rows], [boardInfo], [postInfo], [comment]] = await Promise.all([
         board.boardList(),
@@ -74,11 +84,14 @@ exports.detailPost = async (req, res) => {
         board.searchPost(postId),
         board.getComment(postId)
     ])
+    if (boardInfo[0] === undefined) {
+        return res.redirect('/')
+    }
     res.render('board/postDetail', {
         "session" : req.session.user,
         "board" : rows,
         "boardInfo" : boardInfo[0],
-        "postInfo" : postInfo[0],
+        "postInfo" : postInfo[0],   
         "page" : page,
         "comment" : comment
     })
@@ -86,23 +99,29 @@ exports.detailPost = async (req, res) => {
 //  GET /board/:boardId/:postId/updatePost
 exports.getUpdatePost = async (req, res) => {
     const page = req.query.page || 1;
+    if( page <= 0 ) {
+        page = 1;
+    }
     const { boardId, postId } = req.params;
-    const [[rows], [boardInfo], [postInfo]] = await Promise.all([
-        board.boardList(),
-        board.searchBoard(boardId),
-        board.searchPost(postId)
-    ])
-    /* 
+    const sess = req.session.user;
+    if(!sess) {
+        return res.redirect(`/board/${ boardId }/${ postId }?page=${ page }`);
+    }
     const [rows] = await board.boardList();
-    const [boardInfo] = await board.searchBoard(boardId);
-    const [postInfo] = await board.searchPost(postId);
+    const [info] = await board.searchBoardPostbyPostId(postId)
+    if(!sess.admin && sess.id !== info[0].author) {
+        return res.redirect(`/board/${ boardId }/${ postId }?page=${ page }`);
+    }
+    /* 
+    const [[rows], [info]] = await Promise.all([
+        board.boardList(),
+        board.searchBoardPostbyPostId(postId)
+    ])
     */
-    
     res.render('board/postUpdate', {
-        "session" : req.session.user,
         "board" : rows,
-        "boardInfo" : boardInfo[0],
-        "postInfo" : postInfo[0],
+        "session" : sess,
+        "info" : info[0],
         "page" : page
     })
 }
@@ -126,8 +145,7 @@ exports.addComment = async (req, res) => {
     const { comment } = req.body;
     const { id } = req.session.user;
     const { boardId, postId } = req.params;
-    let test = comment;
-    if( test.trim() !== '') {
+    if( comment.trim() !== '') {
         await board.addComment(comment, postId, id);
     }
     res.redirect(`/board/${boardId}/${postId}?page=${page}`);

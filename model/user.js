@@ -8,44 +8,11 @@ module.exports = class User {
         this.name= name;
         this.password = password;
     }
-    
-    toHash() {
-        return new Promise((res, rej) => {
-            const hash = argon2.hash(this.password)
-            res(hash)
-        })
+
+    async save() {
+        const hash = await argon2.hash(this.password);
+        return db.execute(`insert into customer values(?, ?, ?)`, [this.id, this.name, hash]);
     }
-    save() {
-        return new Promise((res, rej) => {
-            res(
-                this.toHash()
-                .then((hash) => {
-                    return new Promise((res, rej) => {
-                        res(
-                            this.password = hash,
-                            db.execute(`insert into customer values(?, ?, ?)`, [this.id, this.name, this.password]),
-                        )
-                    })
-                })
-            )
-        })
-    }
-    /*
-    save() {
-        return new Promise((res, rej) => {
-            this.hash()
-            .then((hash) => {
-                console.log('2 => ' + hash)
-                this.password = hash;          
-                console.log(this.password)
-            })
-            .then(
-                console.log('3 => ' + this.password),
-                db.execute(`insert into customer values(?, ?, ?)`, [this.id, this.name, this.password])
-            )
-        })
-    }
-    */
     static updateById (id, name) {
         return db.execute(`update customer set c_name = ? where c_id = ?`, [name, id]);
     }

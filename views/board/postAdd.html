@@ -1,37 +1,11 @@
-{% extends "index.html" %}
+{% extends "board/postUpdate.html" %}
 
-{% block css %}
-    <style>
-        body {
-            padding: 8px 8px;
-            font-size: 14px;
-            font-family: 'Open Sans', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 14px;
-        }
-    </style>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+{% block formLink %}
+    <form action="/board/{{ boardInfo.board_id }}/addPost?page={{ page }}" method="post">
 {% endblock %}
-{% block body %}
-    <article>
-        <div class="container" role="main">
-            <h2>{{ boardInfo.board_name }}</h2>
-			<form action="/board/{{ boardInfo.board_id }}/addPost?page={{ page }}" method="post">
-				<div class="mb-3">
-					<label for="title">제목</label>
-					<input type="text" class="form-control" name="title" id="title" placeholder="제목을 입력해 주세요">
-				</div>
-				<div class="mb-3">
-					<label for="content">내용</label>
-					<textarea class="form-control" rows="5" name="body" id="body" placeholder="내용을 입력해 주세요" ></textarea>
-				</div>			
-                <div>
-                    <button type="submit">저장</button>
-                </div>
-            </form>
-		</div>
-	</article>
+
+{% block macro %}
+    {{ form (boardInfo.board_name, boardInfo.board_id, '제목을 입력해 주세요', page=page, valueAttr='placeholder') }}
 {% endblock %}
 
 

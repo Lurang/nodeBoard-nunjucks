@@ -1,5 +1,3 @@
-const paginate = require('express-paginate');
-
 const db = require('../util/database');
 
 module.exports = class Board {
@@ -74,5 +72,10 @@ module.exports = class Board {
     }
     static deleteComment(commentId) {
         return db.execute(`delete from comment where comment_id = ?`, [commentId]);
+    }
+
+    /*     mix     */
+    static searchBoardPostbyPostId(postId) {
+        return db.execute(`select a.*, b.* from board_information a, board b where b.post_id = ? and a.board_id = b.board_id`, [postId]);
     }
 }

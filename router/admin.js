@@ -4,7 +4,7 @@ const adminController = require('../controller/admin')
 
 const router = express.Router();
 
-//routes
+// routes
 router.route('/')
     .get(adminController.getInfo)
 // show users
@@ -29,4 +29,5 @@ router.route('/boardDelete')
 router.route('/boardAdd')
     .get(adminController.getBoardAdd)
     .post(adminController.postBoardAdd)
+    
 exports.routes = router;

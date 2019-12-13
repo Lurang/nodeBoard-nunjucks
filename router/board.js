@@ -21,9 +21,10 @@ router.route('/:boardId/:postId/updatePost')
     .post(boardController.postUpdatePost)
 router.route('/:boardId/:postId/deletePost')
     .post(boardController.deletePost)
-
+    //comment
 router.route('/:boardId/:postId/addComment')
     .post(boardController.addComment)
+    //delete comment
 router.route('/:boardId/:postId/deleteComment/:commentId')
     .post(boardController.deleteComment)
     

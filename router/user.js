@@ -11,7 +11,6 @@ router.route('/login')
 //logout
 router.route('/logout')
     .get(userController.getLogout)
-    //.post(userController.postLogout)
 //userInfo
 router.route('/info')
     .get(userController.getInfo)

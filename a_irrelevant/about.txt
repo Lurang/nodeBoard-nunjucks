@@ -1,5 +1,16 @@
-/    ->welcomepage?
+환경 nodejs(express) + nunjucks(templating engine) + mysql => MENN? ㅋㅋ
+앵귤러(spa)로 시도하다가 세션쯤에서 때려침, token말고 세션으로하고싶었는데 구현을 실패함
+db는 mongo대신 mysql로
 
+module
+express, express-session, express-mysql-session(sessionStore)
+path, body-parser, cors
+mysql2, argon2
+nunjucks
+nodemon
+
+라우팅 구상
+/
     /admin
         /getUser
         /userManagement
@@ -11,7 +22,6 @@
         /POST update board
         /POST delete board
         /GET&POST add board
-
     /user
         /login
             /get
@@ -24,7 +34,6 @@
             /get  => postList?
             /post => modifyUser & redirect/info
                 => deleteUser & session.destroy => redirect/info
-        
     /board
         /:id
             /addPost
@@ -36,14 +45,16 @@
 -------------------------------------------------------------
     
 -sql-
+12-10
+//db_table구상, 뭐가필요할지?
 
-board_information
-        --
+board_information----
+        -
 board_id    int(11) PK auto_increment
 admin       tinyint(1)==boolean  (1=admin, else notadmin)
 
-board
-        ``
+board------
+        
 post_id     int(11) PK auto_increment
 author      varchar(50) =>작성자
 post_title  varchar(255)
@@ -52,17 +63,20 @@ board_id    int(11) FK from board_information -> board_id
 date        current_timestamp on update current_timestamp
 
 customer
-        ``
+        
 c_id        varchar(50)    PK
 c_name      varchar(50)
 password    varchar(255)   argon2Hash
 
 
-댓글...
-
-게시판information => boardId(int, pk, autoincre), admin(boolean), boardName(varchar), 
-게시판            => postId(int, pk, autoincre), author(varchar 50), postTitle(varchar 255), postBody(varchar 255),
-                    date(Date), boardId(fk)
+//실제 테이블정보 
+//사실 user로할까했는데 전에하던게있어서 그냥했음
+create table customer (
+    c_id varchar(50),
+    c_name varchar(50),
+    password varchar(256),
+    primary key(c_id)
+)default charset=utf8;
 
 create table board_information (
     board_id int auto_increment,
@@ -82,7 +96,6 @@ create table board (
     foreign key (board_id) references board_information (board_id) on delete cascade on update cascade    
 )default charset=utf8;
 
-
 create table comment (
     comment_id int auto_increment,
     comment_author varchar(50),
@@ -94,7 +107,7 @@ create table comment (
 ) default charset=utf8;
 
 
-
+//뻘데이터들
 insert into board (author, post_title, post_body, board_id) 
 values ('admin', "공지", "테스트", 1);
 insert into board (author, post_title, post_body, board_id) 
@@ -129,78 +142,89 @@ insert into board (author, post_title, post_body, board_id)
 values ('hello', "every one", "테스트", 2);
 
 
-FOREIGN KEY (customer_sid) REFERENCES customer (sid) ON DELETE CASCADE
-
-
 auto_increment 재설정
 set @cnt=0;
 update board_information set board_information.board_id=@cnt:=@cnt+1;
 alter table board_information auto_increment=1;
 
 ------------------------------------------------
-css
-postAdd.html
-{% block css %}
-    <style>
-        body {
-            padding-top: 70px;
-            padding-bottom: 30px;
-        }
-    </style>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-{% endblock %}
+쿼리문
 
-
-
-
+//특정 유저가 작성한글
 select b.board_name, a.* from board_information b, board a
 where a.author = "admin" and a.board_id = b.board_id
 
-
+//paging
 select R1.* from (
 select b.board_name, a.* from board_information b, board a where a.author = "1" and a.board_id = b.board_id
 ) R1 limit 10 offset 0
 
-
-select count(*) count from (
-    select a.* from board_information b, board a where b.board_id = 1 and b.board_id = a.board_id
-) R1;
+//어떤 게시판에 총게시글
 select count(*) count from (
     select a.* from board_information b, board a where b.board_id = ? and b.board_id = a.board_id
 ) R1;
 
 ///////////////////////////////////
 12-12
-사용자 - id
-게시글의 - author
-    bt 삭제시 bt가쓴글 3개 삭제?
-
-    delete from (
-        select c.c_id, b.author from customer c, board b where b.author = 'bt' and c.c_id = 'bt'
-    ) R1
-
 
     관리자전용게시글 글쓰는곳인데 일반사용자가 접근
     http://localhost:3000/board/1/addPost?page=1
-
     +  일반사용자게시글에 비로그인한사람이 글쓰기
     http://localhost:3000/board/2/addPost?page=1
     수정
     http://localhost:3000/board/2/7/updatePost?page=1
 
     get MEthod들에대해 전부 예외처리가 필요한시점
-
     board
         /:boardId
         /:boardId/addPost
         /:boardId/:postId
         /:boardId/:postId/updatePost
-    
     user
         /logout
         /info
-        
+
+    postAdd.html에서 if,block 으로수정 -> add막힌듯? -> 별로좋지않은거같음,,, 예외를처리하기힘듬 (html만으로는 redirect를 못해준다던지)
+    (js나 jquery쓰면될거같긴하지만 너무 불필요 + 이상해질거같음)
+    -> update도 처리필요 http://localhost:3000/board/1/3/updatePost?page=1
+    -> 해당 controller들을 수정하기로함
+
+    전체 board_information column, 
+    
+    select a.*, b.* from board_information a, board b where b.post_id = (postId) and a.board_id = b.board_id
+
+///////////////////////////////////
+12-13
+    GET method page exception handling 끝 => 그냥 controller에서 해당페이지렌더링해줄때 if문으로 점검하게되어있슴
+    => admin인지 req.session.user.isValid(로그인중인지) 로그인한 id = 게시글작성자 인지 등등
+///////////////////////////////////
+디렉토리구조
+/
+    app.js              -서버기본설정
+    /controller         -라우팅에서 지정한경로에대한 실제처리하는곳
+        admin.js
+        board.js
+        index.js
+        user.js
+    /router
+        admin.js        -/admin에대한 라우팅 - 관리자페이지
+        board.js        -/board에대한 라우팅 - 게시글 댓글
+        index.js        -/에대한 라우팅      - 기본 header
+        user.js         -/user에대한 라우팅  - 로그인 사용자정보
+    /util
+        database.js     -db연결정보
+    /model
+        board.js        -게시판과 관련된dbquery문
+        user.js         -계정정보와 관련된 dbquery문
+    /views              -화면에 렌더링해주는 view template(nunjucks)들
+        index.html      -/
+        /board          -/board~
+        /admin          -/admin~
+        /user           -/user~
+    /public
+        /css   
+            style.css   
+    
 
 
     
-        

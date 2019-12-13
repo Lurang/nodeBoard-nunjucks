@@ -3,29 +3,45 @@
 {% block css %}
     <style>
         body {
-            padding-top: 70px;
-            padding-bottom: 30px;
+            padding: 8px 8px;
+            font-size: 14px;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 14px;
         }
     </style>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 {% endblock %}
+
 {% block body %}
-    <article>
-        <div class="container" role="main">
-            <h2>{{ boardInfo.board_name }}</h2>
-			<form action="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/updatePost?page={{ page }}" method="post">
-				<div class="mb-3">
-					<label for="title">제목</label>
-					<input type="text" class="form-control" name="title" id="title" value="{{ postInfo.post_title }}">
-                </div>
-                <div class="mb-3">
-					<label for="content">내용</label>
-					<textarea class="form-control" rows="5" name="body" id="body">{{ postInfo.post_body }}</textarea>
-				</div>			
-                <div>
-                    <input type="submit" value="저장" />
-                </div>
-            </form>
-		</div>
-	</article>
+    {% macro form (board_name, board_id, post_title, post_id, post_body, page, valueAttr) %}
+        <article>
+            <div class="container" role="main">
+                <h2>{{ board_name }}</h2>
+                
+                {% block formLink %}
+                    <form action="/board/{{ board_id }}/{{ post_id }}/updatePost?page={{ page }}" method="post">
+                {% endblock %}
+                
+                    <div class="mb-3">
+                        <label for="title">제목</label>
+                        <input type="text" class="form-control" name="title" id="title" {{valueAttr}}="{{ post_title }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="content">내용</label>
+                        <textarea class="form-control" rows="5" name="body" id="body" {{valueAttr}}="{{ post_body }}">{{ post_body }}</textarea>
+                    </div>			
+                    <div>
+                        <input type="submit" value="저장">
+                    </div>
+                </form>
+            </div>
+        </article>
+    {% endmacro %}
+    
+    {% block macro %}
+        {{ form (info.board_name, info.board_id, info.post_title, info.post_id, info.post_body, page, 'value') }}
+    {% endblock %}
+
 {% endblock %}

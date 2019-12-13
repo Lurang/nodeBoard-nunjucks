@@ -1,0 +1,27 @@
+{% extends "index.html" %}
+
+{% block body %}
+    {% set index = 1 %}
+    <table class="type01">
+            <tr>
+                <th>No.</th>
+                <th>ID</th>
+                <th>이름</th>
+            </tr>
+        {% for user in users%}
+            {% if user.c_id != 'admin' %}
+                <tr>
+                    <td><a href="/admin/userManagement/{{user.c_id}}">{{ index }}</a></td>
+                    <td>{{ user.c_id }}</td>
+                    <td>{{ user.c_name }}</td>
+                </tr> 
+            {% set index = index + 1 %}
+            {% endif %}
+        {% endfor %}
+    </table>
+{% endblock %}
+
+
+
+    
+

@@ -52,7 +52,7 @@ exports.userAdd = async (req, res) => {
     await newUser.save()
     res.redirect('/')
 }
-// ??
+// GET /user/info
 exports.getInfo = async (req, res) => {
     let page = req.query.page || 1;  //default = 1
     const [[rows], [maxPost]] = await Promise.all([
@@ -61,7 +61,7 @@ exports.getInfo = async (req, res) => {
     ])
     //case over maxpage
     const maxPage = Math.ceil(maxPost[0].count / postPerPage);
-    if (page > maxPage) {
+    if (page > maxPage && maxPage != 0) {
         page = maxPage;
     }
     const [posts] = await board.userPost(req.session.user.id, postPerPage, ((page - 1) * postPerPage))

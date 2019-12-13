@@ -19,8 +19,10 @@
                             <input type="checkbox" name="admin" value="1"/>
                         {% endif %}
                     </li>
+                    <li>
                         <label>글 개수</label>
-                        <li>{{ count.count }}</li>
+                        {{ count.count }}
+                    </li>
                     <li>
                         <input type="submit" value="Fix" formAction="/admin/boardUpdate", formmethod="POST"/>
                         <input type="submit" value="X" formAction="/admin/boardDelete", formmethod="POST"/>

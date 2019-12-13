@@ -342,10 +342,10 @@ line-height:30px;
     border-bottom:1px solid silver;
     vertical-align:baseline;
   } 
-  #ulTable2 > li > ul > li:first-child           	{width:50%;} /*댓글*/
+  #ulTable2 > li > ul > li:first-child           	{width:45%;} /*댓글*/
   #ulTable2 > li > ul > li:first-child +li       	{width:20%;} /*제목 열 크기*/
-  #ulTable2 > li > ul > li:first-child +li+li    	{width:15%;} /*작성일 열 크기*/
-  #ulTable2 > li > ul > li:first-child +li+li+li 	{width:15%;} /*작성자 열 크기*/
+  #ulTable2 > li > ul > li:first-child +li+li    	{width:25%;} /*작성일 열 크기*/
+  #ulTable2 > li > ul > li:first-child +li+li+li 	{width:10%;} /*작성자 열 크기*/
   
 
   #divPaging {

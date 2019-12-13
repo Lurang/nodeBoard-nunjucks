@@ -16,7 +16,7 @@ const boardRouter = require('./router/board')
 const app = express();
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')));
 
 //db
 const options = {
@@ -30,7 +30,7 @@ const options = {
 //session-mysql
 const sessionStore = new MySQLStore(options);
 app.use(session({
-    secret              : 'tisecret',
+    secret              : 'key!#@abcdef',
     resave              : false,
     saveUninitialized   : false,
     store               : sessionStore
@@ -54,15 +54,6 @@ app.use((req, res ,next) => {
 });
 
 //checkPermission
-const checkLogin = (req, res, next) => {
-    if(req.session){
-        if(req.session.user){
-            return next();
-        }
-    }
-    res.redirect('/')
-}
-
 const auth = (req, res, next) => {
     if(req.session && req.session.user && req.session.user.admin){
         return next();

@@ -14,7 +14,7 @@
             <ul>
                 <li><a href='/'><span>Home</span></a></li>
                 {% for list in board %}
-                    <li><a href='/board/{{list.board_id}}'><span>{{list.board_name}}</span></a></li>
+                    <li><a href='/board/{{list.board_id}}'><span>{{ list.board_name }}</span></a></li>
                 {% endfor %}
                 {% if session.isValid %}
                     {% if session.admin %}
@@ -32,13 +32,11 @@
         <div class="body">
             {% block body %}
                 {% if session.isValid %}
-                    <p>welcome! {{session.id}}</p>
+                    <p>welcome! : {{ session.id }}</p>
+                {% else %}
+                    <p>please login</p>
                 {% endif %}
             {% endblock %}
-        </div>
-
-        <div class="footer">
-            
         </div>
     </body>
 </html>

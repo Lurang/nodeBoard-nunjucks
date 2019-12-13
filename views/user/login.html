@@ -1,41 +1,32 @@
 {% extends "index.html" %}
 
 {% block body %}
-
-<form action="/user/login" method="POST">
-    <ul class="form-style">
+    {% macro input (name, type, extraOptions) %}
         <li>
-            <label>ID</label>
-            <input type="text" name="id" class="field-long" placeholder="id" />
+            <label>{{ name }}<span class="required">{{ extraOptions }}</span></label>
+            <input type="{{ type }}" name="{{ name }}" class="field-long" placeholder="{{ name }}"/>
         </li>
+    {% endmacro %}
+    {% macro submit (name) %}
         <li>
-            <label>password</label>
-            <input type="password" name="password" class="field-long" />
+            <input type="submit" value="{{ name }}"/>
         </li>
-        <li>
-            <input type="submit" value="Login" />
-        </li>
-    </ul>
-</form>
-
-<form action="/user/userAdd" method="POST">
-    <ul class="form-style">
-        <li>
-            <label> id <span class="required">*</span></label>
-            <input type="text" name="id" class="field-long" placeholder="id" />
-        </li>
-        <li>
-            <label> name <span class="required">*</span></label>
-            <input type="text" name="name" class="field-long" placeholder="name" />
-        </li>
-        <li>
-            <label>password <span class="required">*</span></label>
-            <input type="password" name="password" class="field-long" />
-        </li>
-        <li>
-            <input type="submit" value="SignUP" />
-        </li>
-    </ul>
-</form>
-
+    {% endmacro %}
+<!-- endmacro -->
+    <form action="/user/login" method="POST">
+        <ul class="form-style">
+            {{ input ('id', 'text') }}
+            {{ input ('password', 'password') }}
+            {{ submit ('login') }}
+        </ul>
+    </form>
+    <form action="/user/userAdd" method="POST">
+        <ul class="form-style">
+            {{ input ('id', 'text', '*') }}
+            {{ input ('name', 'text', '*') }}
+            {{ input ('password', 'password', '*') }}
+            {{ submit ('signup') }}
+        </ul>
+    </form>
 {% endblock %}
+

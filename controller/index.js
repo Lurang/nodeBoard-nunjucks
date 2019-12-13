@@ -1,4 +1,3 @@
-const user = require('../model/user')
 const board = require('../model/board')
 
 exports.getIndex = async (req, res) => {
