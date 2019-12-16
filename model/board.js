@@ -8,9 +8,13 @@ module.exports = class Board {
     }
     //해당게시판의 총post들
     static postList(boardId, first, last) {
-        return db.execute(`select R1.* from (
+        return db.execute(`
+        select R1.*, R2.countn, ifnull(countn, 0) count
+        from (
             select * from board where board_id = ? order by post_id asc
-        ) R1 limit ? offset ?`, [boardId, first, last]);
+        ) R1 left join (
+            select post_id pi, count(post_id) countn from comment group by post_id
+        ) R2 on R2.pi = R1.post_id limit ? offset ?`, [boardId, first, last]);
     }
     //해당게시판에 post추가
     static addPost(author, title, body, boardId) {
@@ -30,9 +34,12 @@ module.exports = class Board {
     }
     //해당유저가 작성한 글 by paging
     static userPost(author, first, last) {
-        return db.execute(`select R1.* from (
+        return db.execute(`
+        select R1.*, R2.countn, ifnull(countn, 0) count from (
             select b.board_name, a.* from board_information b, board a where a.author = ? and a.board_id = b.board_id order by date asc
-        ) R1 limit ? offset ?`, [author, first, last]);
+        ) R1 left join (
+            select post_id pi, count(post_id) countn from comment group by post_id
+        ) R2 on R1.post_id = R2.pi  limit ? offset ?`, [author, first, last]);
     }
     // 갯수
     static maxUserPost(author) {

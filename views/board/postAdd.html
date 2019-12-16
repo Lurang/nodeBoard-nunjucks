@@ -1,7 +1,7 @@
 {% extends "board/postUpdate.html" %}
 
 {% block formLink %}
-    <form action="/board/{{ boardInfo.board_id }}/addPost?page={{ page }}" method="post">
+    <form name="form" action="/board/{{ boardInfo.board_id }}/addPost?page={{ page }}" method="post">
 {% endblock %}
 
 {% block macro %}

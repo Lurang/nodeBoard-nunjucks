@@ -198,6 +198,53 @@ select count(*) count from (
     GET method page exception handling 끝 => 그냥 controller에서 해당페이지렌더링해줄때 if문으로 점검하게되어있슴
     => admin인지 req.session.user.isValid(로그인중인지) 로그인한 id = 게시글작성자 인지 등등
 ///////////////////////////////////
+12-15
+    회원가입 및 로그인에서 빈칸(스페이스) 또는 특수문자(비밀번호제외) 일경우 예외처리
+
+    ajax를 통해 회원가입시 id중복체크가능하게끔함
+    아래에있는 쿼리문 추가하여 해당포스트에 댓글이 몇개달려있는지를 목록에서보여줌,
+    사용자 정보목록에서도 댓글수보여줌
+
+    req.query.page 
+    예외처리를위해 integer로 만듬
+
+    let page = req.query.page || 1; 
+    let page = +req.query.page || 1;
+    앞에 +를 붙힘, 문자열이들어오면 1번페이지로 알아서감
+    comment가 session이없는 유저(비로그인) 에 열려있던점 수정
+    
+    <------------------------------------->
+    어떤 유저가 작성한 모든글
+        게시판이름, 제목, 작성일, 작성자, 댓글수
+        select R1.*, R2.countn, ifnull(countn, 0) count from (
+            select b.board_name, a.* from board_information b, board a where a.author = '1' 
+            and a.board_id = b.board_id order by date asc
+        ) R1 left join (
+            select post_id pi, count(post_id) countn from comment group by post_id
+        ) R2 on R1.post_id = R2.pi  limit 10 offset 0
+    <------------------------------------->
+    해당게시판의 모든글
+        No(index) db포함x, 제목, 작성일, 작성자, 댓글수
+
+        select R1.*, R2.countn, ifnull(countn, 0) count from (
+            select * from board where board_id = 1 order by post_id asc
+        ) R1 left join (
+            select post_id pi, count(post_id) countn from comment group by post_id
+        ) R2 on R2.pi = R1.post_id limit 10 offset 0;
+
+///////
+
+if () {
+
+} else {
+
+}  식으로 띄어씀,  ; 붙이기,   json에서 불필요한" 없애고 id: value 처럼, json마지막에 ',' 컴마붙여주기
+
+password hash함수에서 과정이길고 리소스를많이먹으니 password lenght를 점검하건 ㅏ하는게좋음
+=== undefined, ===null 따로쓸떄만 == null로
+
+nunjucks autoescape: true, 하는게좋ㄱ ㅗ특별한경우에만 raw?
+
 디렉토리구조
 /
     app.js              -서버기본설정
@@ -224,7 +271,4 @@ select count(*) count from (
     /public
         /css   
             style.css   
-    
-
-
     

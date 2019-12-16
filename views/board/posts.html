@@ -12,6 +12,7 @@
                             <li>제목</li>
                             <li>작성일</li>
                             <li>작성자</li>
+                            <li>댓글수</li>
                         </ul>
                     </li>
                     {% set index = page.index | int %}
@@ -25,6 +26,7 @@
                                 </a></li>
                                 <li class="center">{{ list.date }}</li>
                                 <li class="center">{{ list.author }}</li>
+                                <li class="center">{{ list.count }}</li>
                             </ul>
                         </li>	
                     {% endfor %}				

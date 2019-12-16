@@ -1,17 +1,7 @@
 {% extends "index.html" %}
 
 {% block css %}
-    <style>
-        body {
-            padding: 8px 8px;
-            font-size: 14px;
-            font-family: 'Open Sans', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 14px;
-        }
-    </style>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 {% endblock %}
 
 {% block body %}
@@ -21,9 +11,8 @@
                 <h2>{{ board_name }}</h2>
                 
                 {% block formLink %}
-                    <form action="/board/{{ board_id }}/{{ post_id }}/updatePost?page={{ page }}" method="post">
+                <form name="form" action="/board/{{ board_id }}/{{ post_id }}/updatePost?page={{ page }}" method="post">
                 {% endblock %}
-                
                     <div class="mb-3">
                         <label for="title">제목</label>
                         <input type="text" class="form-control" name="title" id="title" {{valueAttr}}="{{ post_title }}">
@@ -33,11 +22,22 @@
                         <textarea class="form-control" rows="5" name="body" id="body" {{valueAttr}}="{{ post_body }}">{{ post_body }}</textarea>
                     </div>			
                     <div>
-                        <input type="submit" value="저장">
+                        <input type="button" onclick="submit()" value="저장">
                     </div>
                 </form>
             </div>
         </article>
+        <script>
+            const submit = () => {
+                const postForm = document.form;
+                const title = postForm.title.value;
+                if(title == "") {
+                    alert("제목을 입력해 주세요.");
+                } else {
+                    postForm.submit()
+                }   
+            }
+        </script>
     {% endmacro %}
     
     {% block macro %}

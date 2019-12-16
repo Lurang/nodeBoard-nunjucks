@@ -10,17 +10,21 @@ exports.getLogin = (req, res) => {
 }
 //loginCheck => setSession
 exports.postLogin = async (req, res) => {
-    const { id, password } = req.body;
+    const {id, password} = req.body;
     const [rows] = await user.login(id);
     //idCheck
     if (!rows[0]) {
-        res.redirect(404, '/user/login');
+        res.json({
+            message: 0,
+        })
         return;
     }
     //passwordCheck
     const result = await argon2.verify(rows[0].password, password);
     if (result === false) {
-        res.send('password wrong');
+        res.json({
+            message: 1,
+        })
         return;
     }
     //adminCheck
@@ -33,49 +37,59 @@ exports.postLogin = async (req, res) => {
     }
     //set session
     req.session.user = {
-        "id": id,
-        "isValid": true,
-        "admin": isAdmin
+        id: id,
+        isValid: true,
+        admin: isAdmin,
     }
-    res.redirect('/')
+    //res.redirect('/')
+    res.json({
+        message: 3,
+    })
 }
 //logOut => destroy session
 exports.getLogout = (req, res) => {
     req.session.destroy(() => {
-        res.redirect('/')
+        res.redirect('/');
     })
 }
 //add new user
 exports.userAdd = async (req, res) => {
-    const { id, name, password } = req.body;
+    const {id, name, password} = req.body;
     const newUser = new user(id, name, password);
-    await newUser.save()
-    res.redirect('/')
+    try {
+        await newUser.save();
+    } catch(err) {
+        console.log(err);
+        return res.json({
+            state: err.sqlState,
+        });
+    }
+    res.redirect('/');
 }
 // GET /user/info
 exports.getInfo = async (req, res) => {
-    let page = req.query.page || 1;  //default = 1
+    let page = +req.query.page || 1;  //default = 1
     const [[rows], [maxPost]] = await Promise.all([
         user.findById(req.session.user.id),
-        board.maxUserPost(req.session.user.id)
+        board.maxUserPost(req.session.user.id),
     ])
     //case over maxpage
     const maxPage = Math.ceil(maxPost[0].count / postPerPage);
     if (page > maxPage && maxPage != 0) {
         page = maxPage;
     }
-    const [posts] = await board.userPost(req.session.user.id, postPerPage, ((page - 1) * postPerPage))
+    const [posts] = await board.userPost(req.session.user.id, postPerPage, ((page - 1) * postPerPage));
     res.render('user/userInfo', {
-        "user" : rows[0],
-        "session" : req.session.user,
-        "posts" : posts,
-        "maxPage" : maxPage
+        user: rows[0],
+        session: req.session.user,
+        posts: posts,
+        maxPage: maxPage,
     });
 }
 //  POST /user/updateUser
 exports.updateUser = async (req, res) => {
-    const { id, name } = req.body;
-    await user.updateById(id, name) 
+    const {id, name} = req.body;
+    await user.updateById(id, name);
     if (req.session.user.admin) {
         res.redirect('/admin/userManagement');
     } else {
@@ -84,13 +98,27 @@ exports.updateUser = async (req, res) => {
 }
 //  POST /user/deleteUser
 exports.delete = async (req, res) => {
-    const { id } = req.body;
-    await user.deleteById(id)
+    const {id} = req.body;
+    await user.deleteById(id);
     if (req.session.user.admin) {
         res.redirect('/admin/userManagement');
-    } else {   
+    } else {
         req.session.destroy(() => {
-            res.redirect('/')
+            res.redirect('/');
+        })
+    }
+}
+//  POST /user/suCheck
+exports.sighUpCheck = async (req, res) => {
+    const {id} = req.body;
+    const [row] = await user.checkId(id);
+    if (row[0].count === 0) {
+        res.json({
+            id: 1 //can use id
+        })
+    } else {
+        res.json({
+            id: 0 //id already exist
         })
     }
 }

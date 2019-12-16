@@ -1,10 +1,9 @@
 const path = require('path')
-const express = require('express');
-const bodyParser = require('body-parser');
 const nunjucks = require('nunjucks');
+const bodyParser = require('body-parser');
+const express = require('express');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
-
 const cors = require('cors');
 
 const indexRouter = require('./router/index')
@@ -44,18 +43,18 @@ nunjucks.configure(['views/'],{
 app.set('view engine', 'html');
 
 //cors error
-app.use(cors())
+//app.use(cors())
 app.use((req, res ,next) => {
-    res.setHeader('Access-Control-Allow-Credentials', true);
+    //res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin','*'); //*대신 specific domain 가능
     res.setHeader('Access-Control-Allow-Methods','GET, POST, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Credentials'); 
     next();
 });
 
-//checkPermission
+//checkAdminPermission
 const auth = (req, res, next) => {
-    if(req.session && req.session.user && req.session.user.admin){
+    if (req.session.user && req.session.user.admin){
         return next();
     }
     res.redirect('/');

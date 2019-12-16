@@ -30,6 +30,7 @@
                             <li>제목</li>
                             <li>작성일</li>
                             <li>작성자</li>
+                            <li>댓글수</li>
                         </ul>
                     </li>
                     {% for list in posts%}
@@ -41,6 +42,7 @@
                                 </li>
                                 <li class="center">{{ list.date }}</li>
                                 <li class="center">{{ list.author }}</li>
+                                <li class="center">{{ list.count }}</li>
                             </ul>
                         </li>
                     {% endfor %}

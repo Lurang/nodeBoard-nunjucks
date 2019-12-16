@@ -22,16 +22,18 @@
             <a href="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/updatePost?page={{ page }}"><button type="button">수정</button></a>
             <form action="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/deletePost?page={{ page }}" method="POST">
                 <button type="submit">삭제</button>
-            </form>
+            </form>            
         {% endif %}
     </div>
     
     <div>
         <h2>comment</h2>
-        <form action="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/addComment?page={{ page }}" method="POST">
-            <input type="text" class="form-control" name="comment" id="comment">
-            <input type="submit" value="저장">
-        </form>
+        {% if session.isValid %}
+            <form action="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/addComment?page={{ page }}" method="POST">
+                <input type="text" class="form-control" name="comment" id="comment">
+                <input type="submit" value="저장">
+            </form>
+        {% endif %}
     </div>
     <div id="mainWrapper2">
         <ul>
@@ -58,7 +60,11 @@
                                                 <input type="submit" value="X" formAction="/board/{{ boardInfo.board_id }}/{{ postInfo.post_id }}/deleteComment/{{ com.comment_id }}?page={{ page }}", formmethod="POST"/>
                                             </form>
                                         </li>
+                                    {% else %}
+                                        <li>X</li>
                                     {% endif %}
+                                {% else %}
+                                    <li>X</li>
                                 {% endif %}  
                             </ul>
                         </li>	

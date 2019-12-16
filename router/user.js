@@ -23,5 +23,8 @@ router.route('/updateUser')
 //deleteUser
 router.route('/deleteUser')
     .post(userController.delete)
-
+//checkId
+router.route('/suCheck')
+    .post(userController.sighUpCheck)
+    
 exports.routes = router;
