@@ -6,9 +6,9 @@
             <form>
                 <ul class="form-style">
                     <li>
-                        <input type="hidden" name="id" value="{{ board.board_id }}"/>
+                        <input type="hidden" name="id" value="{{board.board_id}}"/>
                         <label>BoardName</label>
-                        <input type="text" name="name" class="field-long" value="{{ board.board_name }}"/>
+                        <input type="text" name="name" class="field-long" value="{{board.board_name}}"/>
                     </li>
                     <li>
                     <li>
@@ -21,7 +21,7 @@
                     </li>
                     <li>
                         <label>글 개수</label>
-                        {{ count.count }}
+                        <label>{{count.count}}</label>
                     </li>
                     <li>
                         <input type="submit" value="Fix" formAction="/admin/boardUpdate", formmethod="POST"/>

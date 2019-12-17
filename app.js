@@ -1,4 +1,5 @@
-const path = require('path')
+const path = require('path');
+
 const nunjucks = require('nunjucks');
 const bodyParser = require('body-parser');
 const express = require('express');
@@ -6,10 +7,10 @@ const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const cors = require('cors');
 
-const indexRouter = require('./router/index')
-const adminRouter = require('./router/admin')
-const userRouter = require('./router/user')
-const boardRouter = require('./router/board')
+const indexRouter = require('./router/index');
+const adminRouter = require('./router/admin');
+const userRouter = require('./router/user');
+const boardRouter = require('./router/board');
 
 //express
 const app = express();
@@ -23,16 +24,16 @@ const options = {
     port: 3306,
     user: 'lurang',
     database: 'node',
-    password: 'wnsgh'
+    password: 'wnsgh',
 };
 
 //session-mysql
 const sessionStore = new MySQLStore(options);
 app.use(session({
-    secret              : 'key!#@abcdef',
-    resave              : false,
-    saveUninitialized   : false,
-    store               : sessionStore
+    secret: 'key!#@abcdef',
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore,
 }))
 
 //nunjucks
@@ -46,7 +47,7 @@ app.set('view engine', 'html');
 //app.use(cors())
 app.use((req, res ,next) => {
     //res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin','*'); //*대신 specific domain 가능
+    res.setHeader('Access-Control-Allow-Origin','*'); //*대신 specific domain
     res.setHeader('Access-Control-Allow-Methods','GET, POST, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Credentials'); 
     next();
@@ -54,7 +55,7 @@ app.use((req, res ,next) => {
 
 //checkAdminPermission
 const auth = (req, res, next) => {
-    if (req.session.user && req.session.user.admin){
+    if (req.session.user && req.session.user.admin) {
         return next();
     }
     res.redirect('/');

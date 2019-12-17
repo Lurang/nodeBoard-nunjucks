@@ -1,9 +1,9 @@
-const board = require('../model/board')
+const board = require('../model/board');
 
 exports.getIndex = async (req, res) => {
-    const [rows] = await board.boardList()
+    const [rows] = await board.boardList();
     res.render('index', {
-        "session" : req.session.user,
-        "board" : rows
+        session: req.session.user,
+        board: rows,
     });
 }

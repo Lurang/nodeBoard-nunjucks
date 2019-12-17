@@ -9,11 +9,11 @@
                 <th>이름</th>
             </tr>
         {% for user in users%}
-            {% if user.c_id != 'admin' %}
+            {% if user.c_id !== 'admin' %}
                 <tr>
-                    <td><a href="/admin/userManagement/{{user.c_id}}">{{ index }}</a></td>
-                    <td>{{ user.c_id }}</td>
-                    <td>{{ user.c_name }}</td>
+                    <td><a href="/admin/userManagement/{{user.c_id}}">{{index}}</a></td>
+                    <td>{{user.c_id}}</td>
+                    <td>{{user.c_name}}</td>
                 </tr> 
             {% set index = index + 1 %}
             {% endif %}

@@ -164,6 +164,32 @@ select count(*) count from (
     select a.* from board_information b, board a where b.board_id = ? and b.board_id = a.board_id
 ) R1;
 
+디렉토리구조
+/
+    app.js              -서버기본설정
+    /controller         -라우팅에서 지정한경로에대한 실제처리하는곳
+        admin.js
+        board.js
+        index.js
+        user.js
+    /router
+        admin.js        -/admin에대한 라우팅 - 관리자페이지
+        board.js        -/board에대한 라우팅 - 게시글 댓글
+        index.js        -/에대한 라우팅      - 기본 header
+        user.js         -/user에대한 라우팅  - 로그인 사용자정보
+    /util
+        database.js     -db연결정보
+    /model
+        board.js        -게시판과 관련된dbquery문
+        user.js         -계정정보와 관련된 dbquery문
+    /views              -화면에 렌더링해주는 view template(nunjucks)들
+        index.html      -/
+        /board          -/board~
+        /admin          -/admin~
+        /user           -/user~
+    /public
+        /css   
+            style.css   
 ///////////////////////////////////
 12-12
 
@@ -232,43 +258,27 @@ select count(*) count from (
             select post_id pi, count(post_id) countn from comment group by post_id
         ) R2 on R2.pi = R1.post_id limit 10 offset 0;
 
-///////
+/////////
+코드스타일
 
 if () {
 
 } else {
 
-}  식으로 띄어씀,  ; 붙이기,   json에서 불필요한" 없애고 id: value 처럼, json마지막에 ',' 컴마붙여주기
+}  식으로 띄어씀,  ; 붙이기,   
+json에서 불필요한 " 없애고 id: value 처럼사용,
+json마지막에 ',' 컴마붙여주기 ->나중에확장을위함
 
-password hash함수에서 과정이길고 리소스를많이먹으니 password lenght를 점검하건 ㅏ하는게좋음
-=== undefined, ===null 따로쓸떄만 == null로
+password hash함수에서 과정이길고 리소스를많이먹으니 
+password lenght를 점검하건 ㅏ하는게좋음
 
-nunjucks autoescape: true, 하는게좋ㄱ ㅗ특별한경우에만 raw?
+=== undefined, ===null 따로쓸떄만 == null로, undefined !== null, 기억하기로는 null은 객체타입이라 서로타입이다름
+==타입검사없는 두개를 이때만 임시적으로허용? 평소에는 무조건 3개
 
-디렉토리구조
-/
-    app.js              -서버기본설정
-    /controller         -라우팅에서 지정한경로에대한 실제처리하는곳
-        admin.js
-        board.js
-        index.js
-        user.js
-    /router
-        admin.js        -/admin에대한 라우팅 - 관리자페이지
-        board.js        -/board에대한 라우팅 - 게시글 댓글
-        index.js        -/에대한 라우팅      - 기본 header
-        user.js         -/user에대한 라우팅  - 로그인 사용자정보
-    /util
-        database.js     -db연결정보
-    /model
-        board.js        -게시판과 관련된dbquery문
-        user.js         -계정정보와 관련된 dbquery문
-    /views              -화면에 렌더링해주는 view template(nunjucks)들
-        index.html      -/
-        /board          -/board~
-        /admin          -/admin~
-        /user           -/user~
-    /public
-        /css   
-            style.css   
+nunjucks autoescape: true, 하는게좋고 특별한경우에만 raw?
+
+    
+
+    /////
+    불필요한 module제거 띄어쓰기, 컴마 잘찍기
     
