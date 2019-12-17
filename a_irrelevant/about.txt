@@ -210,7 +210,7 @@ select count(*) count from (
         /logout
         /info
 
-    postAdd.html에서 if,block 으로수정 -> add막힌듯? -> 별로좋지않은거같음,,, 예외를처리하기힘듬 (html만으로는 redirect를 못해준다던지)
+    postAdd.html에서 if,block 으로수정 -> 예외막힌듯? -> 별로좋지않은거같음,,, 예외를처리하기힘듬 (html만으로는 redirect를 못해준다던지)
     (js나 jquery쓰면될거같긴하지만 너무 불필요 + 이상해질거같음)
     -> update도 처리필요 http://localhost:3000/board/1/3/updatePost?page=1
     -> 해당 controller들을 수정하기로함
@@ -224,7 +224,7 @@ select count(*) count from (
     GET method page exception handling 끝 => 그냥 controller에서 해당페이지렌더링해줄때 if문으로 점검하게되어있슴
     => admin인지 req.session.user.isValid(로그인중인지) 로그인한 id = 게시글작성자 인지 등등
 ///////////////////////////////////
-12-15
+12-16
     회원가입 및 로그인에서 빈칸(스페이스) 또는 특수문자(비밀번호제외) 일경우 예외처리
 
     ajax를 통해 회원가입시 id중복체크가능하게끔함
@@ -277,8 +277,142 @@ password lenght를 점검하건 ㅏ하는게좋음
 
 nunjucks autoescape: true, 하는게좋고 특별한경우에만 raw?
 
-    
 
-    /////
-    불필요한 module제거 띄어쓰기, 컴마 잘찍기
+////////////////
+    12-17
+    불필요한 module제거 띄어쓰기, 컴마 잘찍기, post관련되어 예외처리 로직오류수정
+    socket.id를 이용해 index페이지에서 채팅화면구현
+    (아직 구상단계 구현x)
+    댓글에 댓글?
+    comment_id 받아서 쓰면될거같은데,
+    post_id = null 일수가있나? fk인데 가능하네
+    post_id = null일경우에는 직접댓글이아님으로 comment_id로부터 받아온다?
+    post_id도 필요할듯, 다른필드를이용해서 순서나 대댓글의 여부를 판단해야할듯
+
+    부모댓글필드 1개 => 사실별필요없는데 부모삭제시 자식다삭제할려면 필요
+    깊이 depth 1개,
+    순서 reorder 1개
+    <div style="border: 1px solid gray; width: 600px; padding: 5px; margin-top: 5px;
+          margin-left: <c:out value="${20*replylist.redepth}"/>px; display: inline-block">  
+    
+    value="${20*replylist.redepth 이걸로 왼쪽여백을줄듯
+
+    현재
+    comment_id  comment_author  post_id   comment_body  date
+    
+    // test table
+    create table test (
+        comment_id int auto_increment,
+        comment_author varchar(50),
+        post_id int,
+        comment_body varchar(255),
+        date datetime default current_timestamp on update current_timestamp,
+        group_id int,
+        comment_depth int,
+        comment_order int,
+        primary key (comment_id)
+    ) default charset=utf8;
+
+    insert into test (post_id, comment_body, group_id, comment_depth, comment_order)values
+    (1,'첫번째 댓글',1,0,1);
+    insert into test (post_id, comment_body, group_id, comment_depth, comment_order)values
+    (1,'두번째 댓글',2,0,2);
+    insert into test (post_id, comment_body, group_id, comment_depth, comment_order)values
+    (2,'두번째 게시글의 첫번째댓글',1,0,1);
+    insert into test (post_id, comment_body, group_id, comment_depth, comment_order)values
+    (1,'첫번째 댓글의 댓글',1,1,1);
+    insert into test (post_id, comment_body, group_id, comment_depth, comment_order)values
+    (1,'첫번째 댓글의 두번째댓글',1,1,2);
+    insert into test (post_id, comment_body, group_id, comment_depth, comment_order)values
+    (1,'첫번째 댓글의 댓글의 댓글',4,2,1);
+    insert into test (post_id, comment_body, group_id, comment_depth, comment_order)values
+    (1,'두번째 댓글의 댓글',2,1,1);
+
++------------+----------------+---------+---------------------+---------+---------------+---------------+
+| comment_id | comment_author | post_id | comment_body        |pid | comment_depth | comment_order |
++------------+----------------+---------+--------------------------------+---------------+---------------+
+|          1 | NULL           |       1 | 첫번째 댓글             |       1 |             0 |             1 |
+|          2 | NULL           |       1 | 두번째 댓글             |       2 |             0 |             2 |
+|          3 | NULL           |       2 | 두번째 게시글의 첫번째댓글 |       1 |             0 |             1 |
+|          4 | NULL           |       1 | 첫번째 댓글의 댓글       |       1 |             1 |             1 |
+|          5 | NULL           |       1 | 첫번째 댓글의 두번째댓글   |       1 |             1 |             2 |
+|          6 | NULL           |       1 | 첫번째 댓글의 댓글의 댓글  |       4 |             2 |             1 |
+|          7 | NULL           |       1 | 두번째 댓글의 댓글       |        2 |             1 |             1 |
++------------+----------------+---------+----------------------+----------+---------------+---------------+
+                          grpno,  depth   grpord
+1                           1       0       0
+    └4                      1       1       1
+        └6                  1       2       2
+    └5                      1       1       3
+2
+    └7
+
+추가될애 b, 그애 부모 a
+답글이달릴때마다 b의 grpord +1, depth +1해줌
+근데 서로 grpord를 뺏으니 할때마다
+update test set grpord = grpord +1 where grpno = 1 and grpord > 추가된거의 grpord;
+
+그니까 결국 순서는
+update test set grpord = grpord +1 where grpno = 1 and grpord > a.grpord;
+부모보다 grpord큰애들은 다 +1 해주고
+insert into test ~~~grpord = a+1, depth = a+1
+
+1
+    └2
+        └6
+    └4
+        └8
+    └7
+3
+    └5
+
+            grpno       grnpord     depth
+1           1               0           0
+2           1               4           1
+3           3               0           0
+4           1               2           1
+5           3               1           1 
+6           1               5           2
+7           1               1           1
+8           1               3           2
+
+
+
+order by comment_depth asc, comment_order asc;
+
+select * from test order by   post_id,  comment_id, grpord : 그룹정렬
+
+    comment table에 나중추가될것들
+    group_id,   depth,  order
+    group_id 얘는 부모comment_id, 최상위
+    depth는 부모가몇개인지??
+    order는 순서가 몇번째인지
+
+    SELECT BRDNO, REDEPTH+1 REDEPTH, REORDER
+        FROM TBL_BOARDREPLY
+        WHERE RENO=#{reparent}
+////////////////
+
+///////////////
+    RoadMap
+///////////////
+    elastic search
+    caching - node-cache
+            - distributed cache
+            - memory cache
+    
+    log - Node Loggly
+    ts ㅠㅠ
+    testcode => mocking-sinon
+                frameworks,assertion - mocha, chai, jest
+    goot to know libraries - async.js
+                           - pm2
+                           -commander.js (passport, jshint)
+    task scheduling - agenda, node-schedule
+    microServices - message-broker - RabbitMQ,
+                  - Message-bus - busmq
+
+    design patterns - factory, prototype, middlewares, singleton, state, observer...
+
+    
     

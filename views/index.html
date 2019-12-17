@@ -5,9 +5,19 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="/css/styles.css">
+        <style>
+            .chat_logs{
+                width: 95%;
+                height: 200px;
+            }
+            .message {
+                width: 70%;
+            }
+        </style>
         <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
         {% block css %}
         {% endblock %}
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     </head>
     <body>
         <div id='cssmenu'>
@@ -38,5 +48,52 @@
                 {% endif %}
             {% endblock %}
         </div>
+
+        {% block footer %}
+        <div class="footer">
+            <div>
+                <textarea id="chatLogs" class="chat_logs" readonly></textarea>
+            </div>
+            <form class="form-inline">
+            <div class="form-group">
+                    <label for="msgForm">Message: </label>
+                    <input type="text" class="form-control" id="msgForm"/>
+                </div>
+                <input type="button" id="sendMessage" class="btn btn-primary" value="send"/>
+            </form>
+        </div>
+
+        <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io();
+            socket.emit("login", {
+                id: "{{session.id}}",
+            });
+            socket.on("login", (data) => {
+                $("#chatLogs").append(data + "님이 입장하셨습니다.\n");
+            });
+            socket.on("disconnect", (data) => {
+                $("#chatLogs").append(data.msg + "님이 퇴장하셨습니다.\n");
+            });
+            //message
+            $(() => {
+                $("#sendMessage").click(() => {
+                    const $msgForm = $("#msgForm");
+                    if ($msgForm.val() === "") {
+                        return ;
+                    } else {
+                        socket.emit("chat", { 
+                            msg: $msgForm.val(),
+                        });
+                        $msgForm.val("");
+                    };
+                });
+                socket.on("chat", (data) => {
+                    $("#chatLogs").append(data.from.id + "님의 메세지: " + data.msg + '\n');
+                    $("#chatLogs").scrollTop($('#chatLogs')[0].scrollHeight);
+                });
+            });
+        </script>
+        {% endblock %}
     </body>
 </html>
