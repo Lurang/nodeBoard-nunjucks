@@ -1,78 +1,59 @@
 {% extends "index.html" %}
 
 {% block body %}
-    <article>
-        <div class="container" role="main">
-            <h2>{{boardInfo.board_name}}</h2>
-            
-            {% macro mb3(label, title, things) %}
-                <div class="mb-3">
-                    <label for="{{label}}">{{title}} : {{things}}</label>
-                </div>
-            {% endmacro %}
+<article>
+    <div class="container" role="main">
+        <h2>{{boardInfo.board_name}}</h2>
 
-            {{mb3('title', '제목', postInfo.post_title)}}
-            {{mb3('content', '작성자', postInfo.author)}}
-            {{mb3('content', '내용', postInfo.post_body)}}
+        {% macro mb3(label, title, things) %}
+        <div class="mb-3">
+            <label for="{{label}}">{{title}} : {{things}}</label>
         </div>
-    </article>
-    <div>
-        <a href="/board/{{boardInfo.board_id}}?page={{page}}"><button type="button">목록으로</button></a>
-        {% if session.admin or postInfo.author == session.id %}			
-            <a href="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/updatePost?page={{page}}"><button type="button">수정</button></a>
-            <form action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deletePost?page={{page}}" method="POST">
-                <button type="submit">삭제</button>
-            </form>            
-        {% endif %}
+        {% endmacro %}
+
+        {{mb3('title', '제목', postInfo.post_title)}}
+        {{mb3('content', '작성자', postInfo.author)}}
+        {{mb3('content', '내용', postInfo.post_body)}}
     </div>
-    
-    <div>
-        <h2>comment</h2>
-        {% if session.isValid %}
-            <form action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}" method="POST">
-                <input type="text" class="form-control" name="comment" id="comment">
-                <input type="submit" value="저장">
-            </form>
-        {% endif %}
-    </div>
-    <div id="mainWrapper2">
-        <ul>
-            <li>
-                <ul id="ulTable2">    
-                    <li>
-                        <ul>
-                            <li>내용</li>
-                            <li>작성자</li>
-                            <li>작성일</li>
-                            <li>삭제</li>
-                        </ul>
-                    </li>
-                    {% for com in comment %}
-                        <li>
-                            <ul>
-                                <li class="left">{{com.comment_body}}</li>
-                                <li>{{com.comment_author}}</li>
-                                <li class="left">{{com.date}}</li>
-                                {% if session.isValid %}
-                                    {% if session.admin or com.comment_author == session.id %}
-                                        <li>
-                                            <form>
-                                                <input type="submit" value="X" formAction="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deleteComment/{{com.comment_id}}?page={{page}}", formmethod="POST"/>
-                                            </form>
-                                        </li>
-                                    {% else %}
-                                        <li>X</li>
-                                    {% endif %}
-                                {% else %}
-                                    <li>X</li>
-                                {% endif %}  
-                            </ul>
-                        </li>	
-                    {% endfor %}
-                </ul>
-            </li>
-        </ul>
-    </div>
+</article>
+<div>
+    <a href="/board/{{boardInfo.board_id}}?page={{page}}"><button type="button">목록으로</button></a>
+    {% if session.admin or postInfo.author == session.id %}
+    <a href="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/updatePost?page={{page}}"><button
+            type="button">수정</button></a>
+    <form action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deletePost?page={{page}}" method="POST">
+        <button type="submit">삭제</button>
+    </form>
+    {% endif %}
+</div>
+
+<div>
+    <h2>comment</h2>
+    {% if session.isValid %}
+    <form action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}" method="POST">
+        <input type="text" class="form-control" name="comment" id="comment">
+        <input type="submit" value="저장">
+    </form>
+    {% endif %}
+</div>
+<div id="mainWrapper2">
+    <ul>
+        <li>
+            <ul id="ulTable2">
+                <li>
+                    <ul>
+                        <li>내용</li>
+                        <li>작성자</li>
+                        <li>작성일</li>
+                        <li>삭제</li>
+                    </ul>
+                </li>
+                <!-- macro from index.html -->
+                {{commentBoard(comment)}}
+            </ul>
+        </li>
+    </ul>
+</div>
 {% endblock %}
 
 {% block footer %}

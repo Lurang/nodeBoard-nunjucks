@@ -139,10 +139,16 @@ exports.deletePost = async (req, res) => {
 exports.addComment = async (req, res) => {
     const page = +req.query.page || 1;
     const {comment} = req.body;
-    const {id} = req.session.user;
+    const author = req.session.user.id;
+    //부모아이디, 그룹아이디 from req body
+    let {pid,group_id} = req.body;
     const {boardId, postId} = req.params;
     if (comment.trim() !== '') {
-        await board.addComment(comment, postId, id);
+        if (pid == null || group_id == null) {
+            await board.addParentComment(author, postId, comment)
+        } else {
+            await board.addComment(author, postId, comment, group_id, pid);
+        }
     };
     res.redirect(`/board/${boardId}/${postId}?page=${page}`);
 }   

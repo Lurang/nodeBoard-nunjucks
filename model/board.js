@@ -69,13 +69,24 @@ module.exports = class Board {
             select a.* from board_information b, board a where b.board_id = ? and b.board_id = a.board_id
         ) R1`, [boardId]);
     }
-
+    
     /* about comment */
-    static addComment(comment, postId, author) {
+    static addComment(author, postId, comment, group_id, pid) {
+        return db.execute(`insert into comment (comment_author, post_id, comment_body, group_id, pid) values (?, ?, ?, ?, ?) `, [author, postId, comment, group_id, pid]);
+    }
+    static addParentComment(author, postId, comment) {
         return db.execute(`insert into comment (comment_author, post_id, comment_body) values (?, ?, ?) `, [author, postId, comment]);
     }
     static getComment(postId) {
-        return db.execute(`select * from comment where post_id = ?`, [postId]);
+        return db.execute(`
+        select R1.comment_id, R1.post_id, R1.comment_author, R1.comment_body, R1.date, R1.group_id, R1.pid, ifnull(R2.author, '') author from (    
+            select comment_id, post_id, comment_author, comment_body, date, ifnull(group_id, comment_id) group_id, ifnull(pid, 0) pid from comment
+        ) R1 left join ( 
+            select T2.comment_author author, T1.comment_id from comment T1 inner join comment T2 on T1.pid = T2.comment_id
+        ) R2 
+        on R1.comment_id = R2.comment_id where R1.post_id = ?
+        order by group_id asc, comment_id asc;
+        `, [postId]);
     }
     static deleteComment(commentId) {
         return db.execute(`delete from comment where comment_id = ?`, [commentId]);

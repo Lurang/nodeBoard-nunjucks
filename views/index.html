@@ -1,99 +1,163 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset='utf-8'>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="/css/styles.css">
-        <style>
-            .chat_logs{
-                width: 95%;
-                height: 200px;
-            }
-            .message {
-                width: 70%;
-            }
-        </style>
-        <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
-        {% block css %}
-        {% endblock %}
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    </head>
-    <body>
-        <div id='cssmenu'>
-            <ul>
-                <li><a href='/'><span>Home</span></a></li>
-                {% for list in board %}
-                    <li><a href='/board/{{list.board_id}}'><span>{{list.board_name}}</span></a></li>
-                {% endfor %}
-                {% if session.isValid %}
-                    {% if session.admin %}
-                        <li><a href='/admin'><span>adminPage</span></a></li>
-                    {% else %}    
-                        <li><a href='/user/info'>userPage</a></li>
-                    {% endif %}
-                    <li class='last'><a href='/user/logout'><span>Logout</span></a></li>
-                {% else %}
-                    <li class='last'><a href='/user/login'><span>Login</span></a></li>
-                {% endif %}                
-            </ul>
-        </div>
 
-        <div class="wrapper">
-            {% block body %}
-                {% if session.isValid %}
-                    <p>welcome! : {{session.id}}</p>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .chat_logs {
+            width: 95%;
+            height: 200px;
+        }
+
+        .message {
+            width: 70%;
+        }
+    </style>
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    {% block css %}
+    {% endblock %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id='cssmenu'>
+        <ul>
+            <li><a href='/'><span>Home</span></a></li>
+            {% for list in board %}
+                <li><a href='/board/{{list.board_id}}'><span>{{list.board_name}}</span></a></li>
+            {% endfor %}
+            {% if session.isValid %}
+                {% if session.admin %}
+                    <li><a href='/admin'><span>adminPage</span></a></li>
                 {% else %}
-                    <p>please login</p>
+                    <li><a href='/user/info'>userPage</a></li>
                 {% endif %}
-            {% endblock %}
-        </div>
+                <li class='last'><a href='/user/logout'><span>Logout</span></a></li>
+            {% else %}
+                <li class='last'><a href='/user/login'><span>Login</span></a></li>
+            {% endif %}
+        </ul>
+    </div>
 
-        {% block footer %}
-        <div class="footer">
-            <div>
-                <textarea id="chatLogs" class="chat_logs" readonly></textarea>
-            </div>
-            <form class="form-inline">
-            <div class="form-group">
-                    <label for="msgForm">Message: </label>
-                    <input type="text" class="form-control" id="msgForm"/>
-                </div>
-                <input type="button" id="sendMessage" class="btn btn-primary" value="send"/>
-            </form>
-        </div>
-
-        <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    {% macro commentBoard(item) %}
         <script>
-            const socket = io();
-            socket.emit("login", {
-                id: "{{session.id}}",
-            });
-            socket.on("login", (data) => {
-                $("#chatLogs").append(data + "님이 입장하셨습니다.\n");
-            });
-            socket.on("disconnect", (data) => {
-                $("#chatLogs").append(data.msg + "님이 퇴장하셨습니다.\n");
-            });
-            //message
             $(() => {
-                $("#sendMessage").click(() => {
-                    const $msgForm = $("#msgForm");
-                    if ($msgForm.val() === "") {
-                        return ;
-                    } else {
-                        socket.emit("chat", { 
-                            msg: $msgForm.val(),
-                        });
-                        $msgForm.val("");
-                    };
+                $(".commentLi").one('click', (event) => {
+                    const t = $(event.target).parent();
+                    const author = t.find("li:eq(1)").text();            
+                    $(event.target).parent().find(".commentDiv").append(`   
+                        <div class="controlDiv">               
+                        {% if session.isValid %}
+                            <span>@${author}님에게 답글</span>                    
+                            <input type="text" class="form-control" name="comment">
+                            <input type="submit" value="저장">
+                        {% endif %}
+                        </div>
+                    `);
+                    if ($(event.target).hasClass(".controlDiv")) {
+                        $(".commentDiv").empty();
+                    }
                 });
-                socket.on("chat", (data) => {
-                    $("#chatLogs").append(data.from.id + "님의 메세지: " + data.msg + '\n');
-                    $("#chatLogs").scrollTop($('#chatLogs')[0].scrollHeight);
-                });
-            });
+            });            
         </script>
-        {% endblock %}
-    </body>
+        
+        <!-- 댓글나열 -->
+        {% for com in item %}
+        <li class="commentLi">
+            <ul>
+                {% if com.author %}
+                    <li class="left"><strong><span style="color:red">ㄴ@{{com.author}} </span></strong>{{com.comment_body}}</li>
+                {% else %}
+                    <li class="left">{{com.comment_body}}</li>
+                {% endif %}
+                <li>{{com.comment_author}}</li>
+                <li class="left">{{com.date}}</li>
+                {% if session.isValid %}
+                    {% if session.admin or com.comment_author == session.id %}
+                        <li>
+                            <form>
+                                <input type="submit" value="X"
+                                    formAction="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deleteComment/{{com.comment_id}}?page={{page}}", formmethod="POST"/>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li>X</li>
+                    {% endif %}
+                {% else %}
+                    <li>X</li>
+                {% endif %}
+                <!--대댓글용-->
+                <form class="commentForm" action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}" method="POST">
+                    <input type="hidden" name="pid" value="{{com.comment_id}}"/> <!--부모아이디-->
+                    {% if com.pid == 0 %}
+                        <input type="hidden" name="group_id" value="{{com.comment_id}}"/>
+                    {% else %}
+                        <input type="hidden" name="group_id" value="{{com.group_id}}"/>
+                    {% endif %}
+                    <div class="commentDiv"></div>
+                </form>
+            </ul>
+        </li>
+        {% endfor %}
+    {% endmacro %}
+
+    {% block body %}
+        {% if session.isValid %}
+            <p>welcome! : {{session.id}}</p>
+        {% else %}
+            <p>please login</p>
+        {% endif %}
+    {% endblock %}
+
+    {% block footer %}
+    <div class="footer">
+        <div>
+            <textarea id="chatLogs" class="chat_logs" readonly></textarea>
+        </div>
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="msgForm">Message: </label>
+                <input type="text" class="form-control" id="msgForm" />
+            </div>
+            <input type="button" id="sendMessage" class="btn btn-primary" value="send" />
+        </form>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        socket.emit("login", {
+            id: "{{session.id}}",
+        });
+        socket.on("login", (data) => {
+            $("#chatLogs").append(data + "님이 입장하셨습니다.\n");
+        });
+        socket.on("disconnect", (data) => {
+            $("#chatLogs").append(data.msg + "님이 퇴장하셨습니다.\n");
+        });
+        //message
+        $(() => {
+            $("#sendMessage").click(() => {
+                const $msgForm = $("#msgForm");
+                if ($msgForm.val() === "") {
+                    return;
+                } else {
+                    socket.emit("chat", {
+                        msg: $msgForm.val(),
+                    });
+                    $msgForm.val("");
+                };
+            });
+            socket.on("chat", (data) => {
+                $("#chatLogs").append(data.from.id + "님의 메세지: " + data.msg + '\n');
+                $("#chatLogs").scrollTop($('#chatLogs')[0].scrollHeight);
+            });
+        });
+    </script>
+    {% endblock %}
+</body>
+
 </html>

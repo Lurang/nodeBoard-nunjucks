@@ -348,7 +348,7 @@ nunjucks autoescape: true, 하는게좋고 특별한경우에만 raw?
     └7
 
 추가될애 b, 그애 부모 a
-답글이달릴때마다 b의 grpord +1, depth +1해줌
+답글이달릴때마다 a의 grpord +1, depth +1 를 b에게해줌
 근데 서로 grpord를 뺏으니 할때마다
 update test set grpord = grpord +1 where grpno = 1 and grpord > 추가된거의 grpord;
 
@@ -375,12 +375,23 @@ insert into test ~~~grpord = a+1, depth = a+1
 6           1               5           2
 7           1               1           1
 8           1               3           2
+create table test (
+    comment_id int auto_increment,
+    grpno int,
+    grnpord int,
+    depth int,
+    primary key(comment_id)
+)
+insert into test (grpno, grnpord, depth) values (1,0,0);
+insert into test (grpno, grnpord, depth) values (1,4,1);
+insert into test (grpno, grnpord, depth) values (3,0,0);
+insert into test (grpno, grnpord, depth) values (1,2,1);
+insert into test (grpno, grnpord, depth) values (3,1,1);
+insert into test (grpno, grnpord, depth) values (1,5,2);
+insert into test (grpno, grnpord, depth) values (1,1,1);
+insert into test (grpno, grnpord, depth) values (1,3,2);
 
-
-
-order by comment_depth asc, comment_order asc;
-
-select * from test order by   post_id,  comment_id, grpord : 그룹정렬
+select * from test order by grpno asc, grnpord asc;
 
     comment table에 나중추가될것들
     group_id,   depth,  order
@@ -388,10 +399,94 @@ select * from test order by   post_id,  comment_id, grpord : 그룹정렬
     depth는 부모가몇개인지??
     order는 순서가 몇번째인지
 
-    SELECT BRDNO, REDEPTH+1 REDEPTH, REORDER
-        FROM TBL_BOARDREPLY
-        WHERE RENO=#{reparent}
-////////////////
+////////////////////////////////////////////////
+    12-18
+    -gulp-nodemon-browsersync 를이용해 html저장해도 리로드가됨
+
+    댓글알고리즘 다른걸생각해봄, 기본적으로 보여주는건 대댓글까지고
+    댓글할때마다 그냥 대댓글했ㄷ너 부모의 @author님에게 라던지 써줄려고함
+
+                author             grpno        parent         id
+    1           ad                   1               0           1
+    └3 1        min                  1               1           3
+    └4 3        ro                   1               3           4
+    └5 3        ot                   1               3           5
+    └6 4        test                 1               4           6
+
+    2           other                2               0           2
+
+create table test (
+    comment_id int auto_increment,
+    comment_author varchar(50),
+    post_id int,
+    comment_body varchar(255),
+    date datetime default current_timestamp on update current_timestamp,
+    group_id int,
+    pid int,
+    primary key (comment_id),
+    foreign key (pid) references test (comment_id) on delete cascade on update cascade
+) default charset=utf8;
+
+
+insert into test (comment_author, comment_body) values ('ad', 'i am 1');
+insert into test (comment_author, comment_body) values ('other', 'i am 2');
+insert into test (comment_author, group_id, pid, comment_body) values ('min', 1, '1', 'to1');
+insert into test (comment_author, group_id, pid, comment_body) values ('ro', 1, '3', 'to3');
+insert into test (comment_author, group_id, pid, comment_body) values ('ot', 1, '3', 'to3-2');
+insert into test (comment_author, group_id, pid, comment_body) values ('test', 1, '4', 'to4');
+
+select ifnull(group_id, comment_id) group_id from test; zzz
+
+select comment_id, comment_author, comment_body, date, ifnull(group_id, comment_id) group_id, ifnull(pid, 0) pid from test 
+order by group_id asc, comment_id asc;
+
+여기서 where post_id = ? 해주면될듯
+pid>0 이면 대댓글이라는뜻
+
+누구에게 이런것도 달아볼까 그냥 join으로 될려나
+
+select R1.comment_id, R1.comment_author, R1.comment_body, R1.date, R1.group_id, R1.pid, ifnull(R2.author, '') author from (    
+    select comment_id, comment_author, comment_body, date, ifnull(group_id, comment_id) group_id, ifnull(pid, 0) pid from test
+) R1 left join ( 
+    select T2.comment_author author, T1.comment_id from test T1 inner join test T2 on T1.pid = T2.comment_id
+) R2 
+on R1.comment_id = R2.comment_id
+order by group_id asc, comment_id asc;
+
+
++------------+----------------+--------------+---------------------+----------+-----+--------+
+| comment_id | comment_author | comment_body | date                | group_id | pid | author |
++------------+----------------+--------------+---------------------+----------+-----+--------+
+|          1 | ad             | i am 1       | 2019-12-18 12:21:40 |        1 |   0 |        |
+|          3 | min            | to1          | 2019-12-18 12:22:08 |        1 |   1 | ad     |
+|          4 | ro             | to3          | 2019-12-18 12:22:08 |        1 |   3 | min    |
+|          5 | ot             | to3-2        | 2019-12-18 12:22:08 |        1 |   3 | min    |
+|          6 | test           | to4          | 2019-12-18 12:22:09 |        1 |   4 | ro     |
+|          2 | other          | i am 2       | 2019-12-18 12:21:40 |        2 |   0 |        |
++------------+----------------+--------------+---------------------+----------+-----+--------+
+만--족
+
+insert 필요한요소들
+작성자, 게시글의 위치(post_id), 댓글내용, 최상위글(그룹아이디, default 0), 부모글id(없으면 0),
+if 그룹이 0 이 아니면 댓글indent
+
+
+drop table comment; 
+create table comment (
+    comment_id int auto_increment,
+    comment_author varchar(50),
+    post_id int,
+    comment_body varchar(255),
+    date datetime default current_timestamp on update current_timestamp,
+    group_id int,
+    pid int,
+    primary key (comment_id),
+    foreign key (pid) references test (comment_id) on delete cascade on update cascade
+) default charset=utf8;
+
+
+
+
 
 ///////////////
     RoadMap
@@ -405,9 +500,9 @@ select * from test order by   post_id,  comment_id, grpord : 그룹정렬
     ts ㅠㅠ
     testcode => mocking-sinon
                 frameworks,assertion - mocha, chai, jest
-    goot to know libraries - async.js
+    good to know libraries - async.js
                            - pm2
-                           -commander.js (passport, jshint)
+                           - commander.js (passport, jshint)
     task scheduling - agenda, node-schedule
     microServices - message-broker - RabbitMQ,
                   - Message-bus - busmq
