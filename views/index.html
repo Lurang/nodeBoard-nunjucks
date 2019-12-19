@@ -44,24 +44,41 @@
 
     {% macro commentBoard(item) %}
         <script>
+            let beforeTarget = 0;
+            let presentTarget = 1;
+            let isOn = 0;
             $(() => {
-                $(".commentLi").one('click', (event) => {
+                $(".commentLi").click((event) => {
                     const t = $(event.target).parent();
-                    const author = t.find("li:eq(1)").text();            
-                    $(event.target).parent().find(".commentDiv").append(`   
-                        <div class="controlDiv">               
-                        {% if session.isValid %}
-                            <span>@${author}님에게 답글</span>                    
-                            <input type="text" class="form-control" name="comment">
-                            <input type="submit" value="저장">
-                        {% endif %}
-                        </div>
-                    `);
-                    if ($(event.target).hasClass(".controlDiv")) {
-                        $(".commentDiv").empty();
+                    const author = t.find("li:eq(1)").text();
+                    if (author) {
+                        beforeTarget = presentTarget;
+                        presentTarget = t;
+                        $(event.target).parent().find(".commentDiv").append(`   
+                            <div class="controlDiv">               
+                            {% if session.isValid %}
+                                <span>@${author}님에게 답글</span>                    
+                                <input type="text" class="form-control" name="comment">
+                                <input type="submit" value="저장">
+                            {% endif %}
+                            </div>
+                        `);
+                        isOn++;
                     }
                 });
-            });            
+            });
+            $(() => {
+                $(document).click((event) => {
+                    if (isOn >= 2) {
+                        if (presentTarget.text() === beforeTarget.text()) { //열려있는게없음
+                            isOn = 0;
+                        } else {
+                            isOn = 1;
+                        }
+                        beforeTarget.find(".controlDiv").remove();
+                    }
+                })
+            })            
         </script>
         
         <!-- 댓글나열 -->
@@ -113,19 +130,62 @@
     {% endblock %}
 
     {% block footer %}
-    <div class="footer">
+    <div class='footer'>
         <div>
-            <textarea id="chatLogs" class="chat_logs" readonly></textarea>
+            <textarea id='chatLogs' class='chat_logs' readonly></textarea>
         </div>
-        <form class="form-inline">
-            <div class="form-group">
-                <label for="msgForm">Message: </label>
-                <input type="text" class="form-control" id="msgForm" />
+        <form class='form-inline'>
+            <div class='form-group'>
+                <label for='msgForm'>Message: </label>
+                <input type='text' class='form-control' id='msgForm'/>
             </div>
-            <input type="button" id="sendMessage" class="btn btn-primary" value="send" />
+            <input type='button' id='sendMessage' class='btn btn-primary' value='send'/>
         </form>
     </div>
-
+    <!-- webSocket -->
+    <script>
+        const ws = new WebSocket('ws://localhost:3000', 'echo-protocol');
+        ws.onopen = () => {
+            let id = '';
+            id = '{{session.id}}';
+            ws.send(JSON.stringify({
+                event: 'login',
+                user: id,
+            }));
+        }
+        //web socket receive message
+        ws.onmessage = (message) => {
+            let data = JSON.parse(message.data);
+            switch (data.event) {
+                case 'login':
+                    $('#chatLogs').append(data.id + '님이 입장하셨습니다.\n');
+                    break;
+                case 'chat':
+                    $('#chatLogs').append(data.id + '님의 메세지: ' + data.msg + '\n');
+                    $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
+                    break;
+            }
+        };
+        
+        //message button click
+        $(() => {
+            $('#sendMessage').click(() => {
+                const $msgForm = $('#msgForm');
+                if ($msgForm.val() === '') {
+                    return;
+                } else {
+                    let sendData = {
+                        event: 'chat',
+                        msg: $msgForm.val(),
+                        //user: "{{session.id}}",
+                    };
+                    ws.send(JSON.stringify(sendData));
+                    $msgForm.val('');
+                };
+            });
+        });
+    </script>
+    <!--            socket io
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
@@ -157,6 +217,7 @@
             });
         });
     </script>
+    -->
     {% endblock %}
 </body>
 

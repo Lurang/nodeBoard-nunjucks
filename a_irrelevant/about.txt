@@ -365,55 +365,56 @@ insert into test ~~~grpord = a+1, depth = a+1
     └7
 3
     └5
+        groupnumber     groupOrder        Depth
+1           1               0               0
+2           1               1               1
+3           3               0               0
+4           1               3               1
+5           3               1               1
+6           1               2               2
+7           1               5               1
+8           1               4               2
 
-            grpno       grnpord     depth
-1           1               0           0
-2           1               4           1
-3           3               0           0
-4           1               2           1
-5           3               1           1 
-6           1               5           2
-7           1               1           1
-8           1               3           2
 create table test (
     comment_id int auto_increment,
     grpno int,
-    grnpord int,
+    grpord int,
     depth int,
     primary key(comment_id)
 )
-insert into test (grpno, grnpord, depth) values (1,0,0);
-insert into test (grpno, grnpord, depth) values (1,4,1);
-insert into test (grpno, grnpord, depth) values (3,0,0);
-insert into test (grpno, grnpord, depth) values (1,2,1);
-insert into test (grpno, grnpord, depth) values (3,1,1);
-insert into test (grpno, grnpord, depth) values (1,5,2);
-insert into test (grpno, grnpord, depth) values (1,1,1);
-insert into test (grpno, grnpord, depth) values (1,3,2);
+insert into test (grpno, grpord, depth) values (1,0,0);
+insert into test (grpno, grpord, depth) values (1,1,1);
+insert into test (grpno, grpord, depth) values (3,0,0);
+insert into test (grpno, grpord, depth) values (1,3,1);
+insert into test (grpno, grpord, depth) values (3,1,1);
+insert into test (grpno, grpord, depth) values (1,2,2);
+insert into test (grpno, grpord, depth) values (1,5,1);
+insert into test (grpno, grpord, depth) values (1,4,2);
 
-select * from test order by grpno asc, grnpord asc;
+select * from test order by grpno asc, grpord asc;
+1 2 6 4 8 7 3 5
 
-    comment table에 나중추가될것들
-    group_id,   depth,  order
-    group_id 얘는 부모comment_id, 최상위
-    depth는 부모가몇개인지??
-    order는 순서가 몇번째인지
+
+
+/////
+
 
 ////////////////////////////////////////////////
     12-18
     -gulp-nodemon-browsersync 를이용해 html저장해도 리로드가됨
+    npx gulp
 
     댓글알고리즘 다른걸생각해봄, 기본적으로 보여주는건 대댓글까지고
     댓글할때마다 그냥 대댓글했ㄷ너 부모의 @author님에게 라던지 써줄려고함
 
-                author             grpno        parent         id
-    1           ad                   1               0           1
-    └3 1        min                  1               1           3
-    └4 3        ro                   1               3           4
-    └5 3        ot                   1               3           5
-    └6 4        test                 1               4           6
+                  author             grpno        parent         id
+    1              ad                   1               0           1
+    └3 1에게        min                  1               1           3
+    └4 3에게        ro                   1               3           4
+    └5 3에게        ot                   1               3           5
+    └6 4에게        test                 1               4           6
 
-    2           other                2               0           2
+    2              other                2               0           2
 
 create table test (
     comment_id int auto_increment,
@@ -464,7 +465,7 @@ order by group_id asc, comment_id asc;
 |          6 | test           | to4          | 2019-12-18 12:22:09 |        1 |   4 | ro     |
 |          2 | other          | i am 2       | 2019-12-18 12:21:40 |        2 |   0 |        |
 +------------+----------------+--------------+---------------------+----------+-----+--------+
-만--족
+
 
 insert 필요한요소들
 작성자, 게시글의 위치(post_id), 댓글내용, 최상위글(그룹아이디, default 0), 부모글id(없으면 0),
@@ -486,9 +487,146 @@ create table comment (
 
 
 
+/////////////////////////////////////////////
+12-19
+    index page에서 jquery부분손봐서 댓글눌렀을때 나오는 대댓글ㅊ아을 document최대한개로설정
+    다른댓글누르면 이전대댓글창 닫히도록 (아직jquery가 미숙)
+    db에 전에구상했던 depth 와 order로 test해봄
+1
+    └2
+        └6
+    └4
+        └8
+    └7
+3
+    └5
+mysql> select * from test order by grpno asc, grpord asc;
++------------+-------+--------+-------+
+| comment_id | grpno | grpord | depth |
++------------+-------+--------+-------+
+|          1 |     1 |      0 |     0 |
+|          2 |     1 |      1 |     1 |
+|          6 |     1 |      2 |     2 |
+|          4 |     1 |      3 |     1 |
+|          8 |     1 |      4 |     2 |
+|          7 |     1 |      5 |     1 |
+|          3 |     3 |      0 |     0 |
+|          5 |     3 |      1 |     1 |
++------------+-------+--------+-------+
+8 rows in set (0.00 sec)
+
+추가 삭제는 어케할것인가... 삭제할때는 자식삭제해서하면 order가 상당히꼬일거가틈, 삭제된메세지입니다 식으로 처리할지도
+
+가져올수있는정보, 부모id의 그룹, 부모아이디의 grpord, 부모아이디의 깊이
+
+insert into test (grpno, grpord, depth) values (부모그룹, 부모order + 1, 부모깊이 +1);
+update test set grpord = grpord+1 where grpno = 1 and grpord > 부모order
+두문장?
+1
+ └2
+   └6
+ └4
+   └8
+   └9
+ └7
+3
+ └5
+9번을 넣어보자
+4번의정보는 알고있음, grpno = 1, grpord = 3 depth = 1
+넣자니 8번이걸리네 8번의 grpord를 알아와야할듯
+select grpord from test where grpno = 1 and depth > 1 and grpord > 3   => 4가나옴
+업데이트가 먼저
+update test set grpord = grpord+1 where grpno = 1 and grpord > 4;
+insert into test (grpno, grpord, depth) values (1, 5 ,2);
+126489735
+
+부모 order + 1 이아니였음
+
+1
+  └2
+    └6
+  └4
+    └8
+      └10
+    └9
+  └7
+3
+  └5
+10번을 넣어봅시다
+8번의 정보는암 grpno=1, grpord=4 depth=2;
+select grpord from test where grpno = 1 and depth > 2 and grpord > 4 => emptyset
+emptyset 일경우에는 grpord 4로생각
+업데이트가먼저
+update test set grpord = grpord+1 where grpno = 1 and grpord > 4;
+insert into test (grpno, grpord, depth) values (1, 5 ,3);
+1 2 6 4 8 10 9 7 3 5
+
+add할때 문제, 쿼리문이 3개임, 첫번째쿼리에서는 grpord를 가져오는데
+ empth일경우도있어서 조건문으로 controller에서 처리해줘야할지도모름
+ grpord찾는거를 select문으로 인자넘겨줄수없나
+ 
+update test, (
+    select grpord from test where grpno = 1 and depth > 2 and grpord > 4
+) R1 set grpord = grpord+1 where grpno=1 and grpord> R1.grpord
 
 
-///////////////
+1
+  └2
+    └6
+  └4
+    └8
+      └10
+      └11
+      └12
+    └9
+  └7
+3
+  └5
+
+11번을 넣어봅시다. 아는거 8번 grpno 1, depth 2, preorder 4
+8번밑에있는애중에 젤큰애의 order 10번이니까 아마 5가나올거임
+update test T1, (
+    select grpno, grpord from test where grpno = 1 and depth > 2 and grpord > 4 
+) R1 set T1.grpord = T1.grpord+1 where T1.grpno = R1.grpno and T1.grpord > R1.grpord;
+서브쿼리로 합치니까 grpord가 몇을줘야할지를 모르겠음
+
+
+insert into test (grpno, grpord, depth) values (1, 6, 3);
+1 2 6 4 8 10 11 9 7 3 5
+
+대충방법알고 db에테스트까지만해봄 실제구현은 안하는걸로
+
+현재 socket.io를이용한 간단한 채팅이 되어있는데
+이를 그냥 websocket을 이용하여 trollbox를 만들어볼계획
+ db에 저장이필요할듯
+
+전반적인 socket.io -> websocket으로 갈아타는것까지는 완성
+socket은 이벤트처리설정해서 보내줬는데
+이벤트처리가 message에 json에 event: "" 형식으로 보내서 스위치문으로 처리했음
+다른방법도있겠지만 이게직관적일것같았음
+ws에서는 stirng으로 바꾸었다가 object했다가 websocket이 좀더 불편한거같음,,,   -------------->다시보니 구현제대로안됨,, 내일수정예정
+차이를함찾아봄   ----  https://www.educba.com/websocket-vs-socket-io/
+
+ws는 tcp커넥션을 통해 생성하는 프로토콜,   socketio는 ws를쓰기위한 라이브러리
+ws는 tcp연결과 full duplex 통신함   socketio는 브라우저와 서버간의 이벤트를통해사용
+ws에서는 프록시와 로드밸런서 지원x      socketio에서는 가능
+ws broadcasting지원안함 (어쩐지 찾아보는데 send랑 close밖에없더라)  socketio은 가능
+ws에서는 fallback지원안함 socket.io에서는 지원함 =>????? 먼지잘몰겠음
+
+
+Redis에 저장했다가 일정주기별로 DB에 저장하는방식을 함써보겠음
+redis이용해보고싶었기도하고 분하관리에 좋을것같음
+
+create table chat (
+    message_id int auto_increment,
+    author char(50),
+    content text,
+    primary key(message_id)
+)default charset=utf-8;
+
+
+
+/////////////////////////////////////////////
     RoadMap
 ///////////////
     elastic search
@@ -510,4 +648,14 @@ create table comment (
     design patterns - factory, prototype, middlewares, singleton, state, observer...
 
     
-    
+
+             
+
+
+
+1.websocket
+2.flexbox
+https://heropy.blog/2018/11/24/css-flexible-box/
+https://ko.learnlayout.com/no-layout.html
+
+https://d2.naver.com/helloworld/8540176
