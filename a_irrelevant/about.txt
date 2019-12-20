@@ -635,14 +635,14 @@ chrome  --   firefox
 3000    --    3000    --work well
 5000    --    5000    --  x
 
+gulp에서 browsersync를 이용해서그럼, 모든브라우저가 동기화되어서 한쪽에서 뭘하면
+다른쪽도 다따라함.
 둘이완전히 동기화되어서 로그인이건 로그아웃이건 요청이 같이일어남
 그니까 한곳에메세지를보내면 2번받음
 3000 5000이나 3000 3000이면 다른아이디로 로그인이가능한데
 5000 5000이면 불가능함
-gulp에서 browsersync를 이용해서그럼, 모든브라우저가 동기화되어서 한쪽에서 뭘하면
-다른쪽도 다따라함.
 
-그리고 입장한내역은 자신한테만보내는게좋을것같음
+그리고 입장한내역은 자신한테만보내는게좋을것같음  --완료
 현재 forEach로 broadcast로 뿌려주고있는데
 로그인한건 해당유저만보내줄려고함 emit 방식
 
@@ -660,13 +660,59 @@ create table chat (
     primary key(chat_id)
 )default charset=utf8;
 
+id가있어야 그래도 원하는거삭제하거나 할때 편할거같아서 넣었음,,
+채팅내용을 다불러올필요는없으니 reload했을때 50개만 불러오게 query문을짬
+
+select * from
+    (select author, body, date from chat order by date desc limit 50)
+as a order by date asc;
+subquery를쓴이유는 최신순으로해야해서 date정렬을해야하는데 desc를하자니 순서가거꾸로여서
+desc로 정렬후 50가만불러오고 그걸다시 date를기준으로 asc정렬함
+
+＠＠＠
 접속이끊겼을때나 요청이지연될때? (인터넷이 drop되었다가 다시연결되었다던가) 했을때
 순서나 저장, 같은메세지 2번뜨지않는지 test
-websocket의 pingpong을 이용함
+websocket의 ping,pong을 이용하여 socket이 계속연결중인지 확인함
 http와 달리 stateful protocol이기때문에
+
 서버와 클라이언트 간의 연결을 항상 유지해야 하며 
 만약 비정상적으로 연결이 끊어졌을 때 적절하게 대응해야함 --어케? ㅠ
 
+@@index.html 에서 
+heartbeat 관련 수정필요할듯,, 잘몰겠음
+원본코드
+https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
+this를쓰면 pingtimeout이든 뭐든 찾을수없다, not a function뜨고
+webSocket이라고 넣어주자니 작동을 안하는거같기도하고,,
+
+@현재 close이벤트가 발생하면 page를 reload하게해놨음 근데 서버가끊기면(nodemon restart) 보통 그상태로있거나
+로딩중이여하는데 바로 site can't bereached 가뜨는거보면, 사용자가 인터넷이 잠깐끊기거나 변경되어도
+비슷한현상이지 않을까싶음, 이렇게해도 괜찮은건지?
+
+---ㅋㅋ씹 다른페이지갈라하면 socket이깨져서 리로딩됨,,방법을 다시생각해야할듯
+??? chrome은잘되는데 firefox에서는 안됨
+----크롬은 서버가재시작되면 한2초쯤뒤에 갑자기 refresh됨,,
+firefox는안되고 console로그를보면 terminated가 안뜸
+
+---그리고 가끔가다가 pingpong잘주고받다가
+어쩔때보면 계속 terminate 되는데 이거 원인도찾아야함 -- 시간이많이지나면 이리댐 
+3초마다 재시작되는거보면 @@에있는 내용때문인듯
+--------------------------------------
+admin connected
+44 connected
+admin receive : 145
+admin terminated1005
+admin connected
+[nodemon] restarting due to changes...
+[nodemon] starting `node app.js`
+[nodemon] restarting due to changes...
+[nodemon] starting `node app.js`
+admin connected
+[nodemon] restarting due to changes...
+[nodemon] starting `node app.js`
+admin connected
+--------------------------------------
+admin connected만되고 closed가없네? forEach client로 찍어보면근데 다른뭐 남아있는건없는듯
 
 /////////////////////////////////////////////
     RoadMap

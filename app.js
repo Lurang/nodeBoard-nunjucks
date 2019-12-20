@@ -102,6 +102,7 @@ wss.on('connection', (ws, req) => {
         ws.id = 'unknown';
     };
     console.log(ws.id + ' connected');
+
     //message handler
     ws.on('message', (message) => {
         ws.ping();
@@ -125,11 +126,14 @@ wss.on('connection', (ws, req) => {
                 msg: message.msg,
                 id: ws.id,
             };
-            console.log(ws.id + ' receive : ' + msg.msg);
             //혹시모를에러..?
             try {
                 chatDb.addChat(msg.id, msg.msg);
                 //broadcast
+                
+                //현재 close관련event테스트를위해 쓴거니 나중에지우길바람
+                ws.close();
+
                 wss.clients.forEach((client) => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify(msg));
@@ -141,17 +145,14 @@ wss.on('connection', (ws, req) => {
             break;
         };
     });
+
     //  ping -> 3초마다 연결확인함, isAlive 가 false일경우 terminate함 
     //  event close는 terminate되면 client에게 event메세지를보내서
     //  Jquery로 페이지를 리로드하게만듬
     interval = setInterval(() => {
         wss.clients.forEach((ws) => {
             if (ws.isAlive === false) {
-                msg = {
-                    event: 'close',
-                };
-                ws.send(JSON.stringify(msg));
-                return ws.terminate();
+                return ws.close();
             };
             ws.isAlive = false;
             ws.ping();
@@ -160,7 +161,7 @@ wss.on('connection', (ws, req) => {
     //  receive pong -> 연결에 응답이왔으면 alive를 true로 줘서 연결되어있음을 알려줌
     ws.on('pong', () => {
         ws.isAlive = true;
-        console.log(ws.id + ' receive a pong');
+        //console.log(ws.id + ' receive a pong');
     });
     ws.on('close', (data) => {
         console.log(ws.id + ' terminated' + data);
@@ -169,7 +170,7 @@ wss.on('connection', (ws, req) => {
         console.error(error);
     });
     // 접속한 ip 얻어올수있음, 비로그인일때 아이디에 일부적어주거나 검증같은거할때 쓸려고했으나
-    //  local한정이라 안쓸거같음
+    //  local한정이라 안쓸거같음, 앞에[x-~]는 프록시용
     let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 });
 
