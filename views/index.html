@@ -153,33 +153,36 @@
         </form>
     </div>
     <!-- webSocket -->
+    <!--
+    <script src="/js/bundle.js"></script>
+    -->
     <script>
         const ws = new WebSocket('ws://localhost:3000');
-        /*
-        const heartbeat = () => {
+
+        heartbeat = () => {
+            clearTimeout(this.pingTimeout);
             // 3초뒤에 terminate, 한번도호출되면 전에세팅해둔거 clear함
             // 서버에서 이미 3초에한번꼴로 ping을보내고있고 그핑에응답하지않으면
             // terminate된다는 함수이긴한데..
-            clearTimeout(WebSocket.pingTimeout);
-            WebSocket.pingTimeout = setTimeout(() => {
-                WebSocket.terminate();
+            this.pingTimeout = setTimeout(() => {
+                this.terminate();
             }, 3000 + 1000);
-        } 
-        */  
+        }
+
         ws.onopen = () => {
-            //heartbeat;
+            heartbeat;
             ws.send(JSON.stringify({
                 event: 'login',
             }));
         }
         ws.onping = () => {
-        //    heartbeat;
+            heartbeat;
         }
         ws.onclose = () => {
             $(() => {
                 location.reload();
             });
-            //clearTimeout(this.pingTimeout);
+            clearTimeout(this.pingTimeout);
         }
         //web socket receive message
         ws.onmessage = (message) => {
@@ -217,6 +220,7 @@
             });
         });
     </script>
+    
     <!--            socket io
     <script src="/socket.io/socket.io.js"></script>
     <script>

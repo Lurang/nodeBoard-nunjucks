@@ -132,7 +132,7 @@ wss.on('connection', (ws, req) => {
                 //broadcast
                 
                 //현재 close관련event테스트를위해 쓴거니 나중에지우길바람
-                ws.close();
+                //ws.close();
 
                 wss.clients.forEach((client) => {
                     if (client.readyState === WebSocket.OPEN) {
@@ -156,7 +156,7 @@ wss.on('connection', (ws, req) => {
             };
             ws.isAlive = false;
             ws.ping();
-        }); 
+        });
     }, 3000);
     //  receive pong -> 연결에 응답이왔으면 alive를 true로 줘서 연결되어있음을 알려줌
     ws.on('pong', () => {
