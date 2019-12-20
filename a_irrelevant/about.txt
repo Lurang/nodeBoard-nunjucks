@@ -625,6 +625,48 @@ create table chat (
 )default charset=utf-8;
 
 
+/////////////////////////////////////////////
+12 - 20 
+어제이슈였던 웹소켓 두번씩출력되는이유
+서버에서 port 3000사용중
+proxy gulp 5000 사용중
+chrome  --   firefox
+3000    --    5000    --work well
+3000    --    3000    --work well
+5000    --    5000    --  x
+
+둘이완전히 동기화되어서 로그인이건 로그아웃이건 요청이 같이일어남
+그니까 한곳에메세지를보내면 2번받음
+3000 5000이나 3000 3000이면 다른아이디로 로그인이가능한데
+5000 5000이면 불가능함
+gulp에서 browsersync를 이용해서그럼, 모든브라우저가 동기화되어서 한쪽에서 뭘하면
+다른쪽도 다따라함.
+
+그리고 입장한내역은 자신한테만보내는게좋을것같음
+현재 forEach로 broadcast로 뿌려주고있는데
+로그인한건 해당유저만보내줄려고함 emit 방식
+
+--
+https://www.bsidesoft.com/?p=3297
+
+채팅 db 구상
+작성자, 채팅내용, 날짜, 
+
+create table chat (
+    chat_id int auto_increment,
+    author varchar(50),
+    body text,
+    date datetime default current_timestamp on update current_timestamp,
+    primary key(chat_id)
+)default charset=utf8;
+
+접속이끊겼을때나 요청이지연될때? (인터넷이 drop되었다가 다시연결되었다던가) 했을때
+순서나 저장, 같은메세지 2번뜨지않는지 test
+websocket의 pingpong을 이용함
+http와 달리 stateful protocol이기때문에
+서버와 클라이언트 간의 연결을 항상 유지해야 하며 
+만약 비정상적으로 연결이 끊어졌을 때 적절하게 대응해야함 --어케? ㅠ
+
 
 /////////////////////////////////////////////
     RoadMap
