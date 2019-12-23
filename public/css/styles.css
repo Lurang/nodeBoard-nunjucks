@@ -25,7 +25,8 @@
   margin: 0;
 }
 #cssmenu.align-right ul li {
-  float: right;
+  /*float: right;*/
+  flex: none;
 }
 #cssmenu.align-center ul {
   text-align: center;
@@ -78,9 +79,12 @@
   -o-transition: width .25s;
   transition: width .25s;
 }
+#cssmenu ul li.last {
+    margin-left: auto;
+}
 #cssmenu ul li.last > a:after,
 #cssmenu ul li:last-child > a:after {
-  display: none;
+    display: none;
 }
 #cssmenu ul li.active a {
   color: #333333;
@@ -97,6 +101,7 @@
 }
 @media screen and (max-width: 768px) {
   #cssmenu ul li {
+    flex: none;
     float: none;
     display: block;
   }
@@ -178,9 +183,25 @@
 
 
 /* admin/users.html-----------------------------*/
-table.type01 th { width: 150px; padding: 10px; font-weight: bold; vertical-align: top; border: 1px solid #ccc;}
-table.type01 td { width: 350px; padding: 10px; vertical-align: top; border: 1px solid #ccc; }
-table.type01 { border-collapse: collapse; text-align: left; line-height: 1.5; margin : 20px 10px;}
+table.type01 th { 
+    width: 150px;
+    padding: 10px; 
+    font-weight: bold; 
+    vertical-align: top; 
+    border: 1px solid #ccc;
+}
+table.type01 td { 
+    width: 350px; 
+    padding: 10px; 
+    vertical-align: top; 
+    border: 1px solid #ccc; 
+}
+table.type01 {
+    border-collapse: collapse; 
+    text-align: left; 
+    line-height: 1.5; 
+    margin : 20px 10px;
+}
 
 
 /* userDetail-----------------------------*/
@@ -268,10 +289,18 @@ ul, li{
   }
 
 #mainWrapper{
+    display: flex;
+    flex-direction: column;
+    /*margin: 0 auto; /*가운데 정렬*/
+    /*
     width: 800px;
-  margin: 0 auto; /*가운데 정렬*/
+    */
 }
-
+#mainWrapper > ul {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
 #mainWrapper > ul > li:first-child {
   text-align: center;
   font-size:14pt;
@@ -280,16 +309,17 @@ ul, li{
   line-height:30px;
 }
 
-#ulTable {margin-top:10px;}
-
+#ulTable {
+    margin-top:10px;
+}
 
 #ulTable > li:first-child > ul > li {
   background-color:#c9c9c9;
   font-weight:bold;
   text-align:center;
 }
-
   #ulTable > li > ul {
+    display: flex;
     clear:both;
     padding:0px auto;
     position:relative;
@@ -300,26 +330,30 @@ ul, li{
     font-size:10pt;
     border-bottom:1px solid silver;
     vertical-align:baseline;
-  }    
-
-  #ulTable > li > ul > li:first-child           	{width:10%;} /*No 열 크기*/
-  #ulTable > li > ul > li:first-child +li       	{width:45%;} /*제목 열 크기*/
-  #ulTable > li > ul > li:first-child +li+li    	{width:20%;} /*작성일 열 크기*/
-  #ulTable > li > ul > li:first-child +li+li+li 	{width:15%;} /*작성자 열 크기*/
-  #ulTable > li > ul > li:first-child +li+li+li+li{width:10%;} /*조회수 열 크기*/
+  }
+  
+  #ulTable > li > ul > li:first-child           	{flex: 10;} /*No 열 크기*/
+  #ulTable > li > ul > li:first-child +li       	{flex: 45;} /*제목 열 크기*/
+  #ulTable > li > ul > li:first-child +li+li    	{flex: 20;} /*작성일 열 크기*/
+  #ulTable > li > ul > li:first-child +li+li+li 	{flex: 15;} /*작성자 열 크기*/
+  #ulTable > li > ul > li:first-child +li+li+li+li  {flex: 10;} /*조회수 열 크기*/
 
 /*/////////////////////////////////////*/
 #mainWrapper2{
-  width: 800px;
+    display: flex;
 }
-
+#mainWrapper2 > ul {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
 #mainWrapper2 > ul > li:first-child {
-
-font-size:14pt;
-height:40px;
-vertical-align:middle;
-line-height:30px;
+    font-size:14pt;
+    height:40px;
+    vertical-align:middle;
+    line-height:30px;
 }
+
 #ulTable2 > li:first-child > ul > li {
   background-color:#c9c9c9;
   font-weight:bold;
@@ -327,6 +361,7 @@ line-height:30px;
 }
   
   #ulTable2 > li > ul {
+    display: flex;
     clear:both;
     padding:0px auto;
     position:relative;
@@ -338,10 +373,10 @@ line-height:30px;
     border-bottom:1px solid silver;
     vertical-align:baseline;
   } 
-  #ulTable2 > li > ul > li:first-child           	{width:45%;} /*댓글*/
-  #ulTable2 > li > ul > li:first-child +li       	{width:20%;} /*제목 열 크기*/
-  #ulTable2 > li > ul > li:first-child +li+li    	{width:25%;} /*작성일 열 크기*/
-  #ulTable2 > li > ul > li:first-child +li+li+li 	{width:10%;} /*작성자 열 크기*/
+  #ulTable2 > li > ul > li:first-child           	{flex: 40;} /*댓글*/
+  #ulTable2 > li > ul > li:first-child +li       	{flex: 15; text-align: center;} /*제목 열 크기*/
+  #ulTable2 > li > ul > li:first-child +li+li    	{flex: 20; text-align: center;} /*작성일 열 크기*/
+  #ulTable2 > li > ul > li:first-child +li+li+li 	{flex: 15; text-align: center;} /*작성자 열 크기*/
   
 
   #divPaging {
@@ -367,32 +402,65 @@ line-height:30px;
    
   }
 
-  .center {
-    text-align : center;
-  }
+    .center {
+        text-align : center;
+    }
 
 body{
-  margin:0;
-  padding:0;
-  width:100%;
-  height:100%
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%
 }
 #wrapper {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body{
-  min-height: 100%;
-  line-height:2em;		
-  font-family:"맑은 고딕";
+    min-height: 100%;
+    line-height:2em;		
+    font-family:"맑은 고딕";
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.main {
+    flex: 1;
 }
 .footer{
-    position: absolute;
     left: 0;
     bottom: 0;
+    text-align: center;
     width: 100%;
-      padding: 80px 0;
-      text-align: center;
-      /*background: rgb(163, 163, 165);*/
+    /*position: absolute;
+    /*
+    padding: 80px 0;
+    background: rgb(163, 163, 165);
+    */
+}
+
+#chatLogs {
+    overflow: auto;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+#chatLogs > li {
+    flex: 1;
+}
+
+#loginDiv {
+    display: flex;
+    flex-direction: column;
+}
+.login {
+    flex: 1;
+}
+
+.signup {
+    flex: 1;
 }

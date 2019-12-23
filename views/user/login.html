@@ -4,25 +4,26 @@
 <!-- macro area -->
     {% macro input(name, type, extraOptions) %}
         <li>
-            <label>{{name}}<span class="required">{{extraOptions}}</span></label>
-            <input type="{{type}}" name="{{name}}" class="field-long" placeholder="{{name}}"/>
+            <label>{{name}}<span class='required'>{{extraOptions}}</span></label>
+            <input type='{{type}}' name='{{name}}' class='field-long' placeholder='{{name}}'/>
         </li>
     {% endmacro %}
     {% macro submit(buttonType, name, extraOptions) %}
         <li>
-            <input type="{{buttonType}}" id={{name}} {{extraOptions}} value="{{name}}"/>
+            <input type='{{buttonType}}' id={{name}} {{extraOptions}} value='{{name}}'/>
         </li>
     {% endmacro %}
 <!-- endmacro -->
-    <form name="login" action="/user/login" method="POST">
-        <ul class="form-style">
+<div id='loginDiv'>
+    <form class='login' name='login' action='/user/login' method='POST'>
+        <ul class='form-style'>
             {{input('id', 'text')}}
             {{input('password', 'password')}}
             {{submit('button', 'login')}}
         </ul>
     </form>
-    <form name="signUp" action="/user/userAdd" method="POST">
-        <ul class="form-style">
+    <form class='signup' name='signUp' action='/user/userAdd' method='POST'>
+        <ul class='form-style'>
             {{input('id', 'text', '*')}}
             {{submit('button', 'checkID')}}
             {{input('name', 'text', '*')}}
@@ -30,8 +31,8 @@
             {{submit('button', 'signup', 'onClick=signUpCheck()')}}
         </ul>
     </form>
-
-    <script type="text/javascript">
+</div>
+    <script type='text/javascript'>
         checkSpace = (str) => {
             if (str.search(/\s/) !== -1) {
                 return true;
@@ -49,13 +50,13 @@
         };
         //login 
         $(() => {
-            $("#login").click(() => {
+            $('#login').click(() => {
                 const id = document.login.id.value;
                 const password = document.login.password.value;
-                if (id === "" || checkSpace(id) || password === "" || checkSpace(password)) {
-                    alert("빈칸없이 입력해주세요.");
-                    document.login.id.value = "";
-                    document.login.password.value = "";
+                if (id === '' || checkSpace(id) || password === '' || checkSpace(password)) {
+                    alert('빈칸없이 입력해주세요.');
+                    document.login.id.value = '';
+                    document.login.password.value = '';
                     return;
                 };
                 $.ajax({
@@ -69,12 +70,12 @@
                     dataType : 'json',
                     success : (data) => {
                         if (data.message === 0) {
-                            alert("잘못된 아이디");
-                            document.login.id.value = "";
-                            document.login.password.value = "";
+                            alert('잘못된 아이디');
+                            document.login.id.value = '';
+                            document.login.password.value = '';
                         } else if (data.message === 1) {
-                            alert("잘못된 비밀번호")
-                            document.login.password.value = "";
+                            alert('잘못된 비밀번호')
+                            document.login.password.value = '';
                         } else {
                             window.location.href = '/';
                         };
@@ -90,10 +91,10 @@
         });
         //id 중복체크
         $(() => {
-            $("#checkID").click(() => {
+            $('#checkID').click(() => {
                 const id = document.signUp.id.value;
-                if (id === "" || checkSpace(id) || checkSpecial(id)) {
-                    return alert("올바른 형식의 id를 입력해주세요.");
+                if (id === '' || checkSpace(id) || checkSpecial(id)) {
+                    return alert('올바른 형식의 id를 입력해주세요.');
                 };
                 $.ajax({
                     async : true,
@@ -105,10 +106,10 @@
                     dataType : 'json',
                     success : (data) => {
                         if (data.id === 0) {
-                            alert("아이디가 이미 존재합니다. 다른아이디를 입력해주세요.");
-                            document.signUp.id.value = "";
+                            alert('아이디가 이미 존재합니다. 다른아이디를 입력해주세요.');
+                            document.signUp.id.value = '';
                         } else {
-                            alert("사용가능한 아이디입니다.");
+                            alert('사용가능한 아이디입니다.');
                             idck = 1;
                         };
                     },
@@ -122,18 +123,18 @@
             const name = signupForm.name.value;
             const password = signupForm.password.value;
             if (idck === 0) {
-                return alert("id중복확인을 해주세요.");
+                return alert('id중복확인을 해주세요.');
             };
-            if (id === "" || checkSpace(id) || name === "" || checkSpace(name) || password === "" || checkSpace(password)) {
+            if (id === '' || checkSpace(id) || name === '' || checkSpace(name) || password === '' || checkSpace(password)) {
                 alert("빈칸없이 입력해주세요.");
-                signupForm.id.value = "";
-                signupForm.name.value = ""
-                signupForm.password.value = "";
+                signupForm.id.value = '';
+                signupForm.name.value = '';
+                signupForm.password.value = '';
             } else if(checkSpecial(id) || checkSpecial(name)) {
-                alert("특수문자 없이 입력해주세요.");
-                signupForm.id.value = "";
-                signupForm.name.value = "";
-                signupForm.password.value = "";
+                alert('특수문자 없이 입력해주세요.');
+                signupForm.id.value = '';
+                signupForm.name.value = '';
+                signupForm.password.value = '';
             } else {
                 signupForm.submit();
             };
@@ -142,4 +143,5 @@
 {% endblock %}
 
 {% block footer %}
+<p>test</p>
 {% endblock %}
