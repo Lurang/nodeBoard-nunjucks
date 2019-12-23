@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
+const WebSocket = require('ws');
+const amqp = require('amqp');
 //const cors = require('cors');
 
 const indexRouter = require('./router/index');
@@ -80,8 +82,6 @@ app.use('/board', boardRouter.routes);
 
 //webSocket setting
 const server = http.createServer(app);
-const WebSocket = require('ws');
-
 const wss = new WebSocket.Server({
     verifyClient: (info, done) => {
         sessionParser(info.req, {}, () => {
@@ -90,61 +90,55 @@ const wss = new WebSocket.Server({
     },
     server,
 });
+
+//rabbitmq
+const rabbit = amqp.createConnection({});
+let chatExchange;
+rabbit.on('ready', () => {
+    chatExchange = rabbit.exchange('chatExchange', {type: 'fanout'});
+});
+
 //wss connection
 wss.on('connection', (ws, req) => {
     let msg = {};
-    // ip 앞에[x-~]는 프록시용
     let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    let subIp = ip.split('.');
-    console.log(subIp);
     ws.isAlive = true;
-    //if login => getid, else id='unknown'
+
     if (req.session.user) {
         ws.id = req.session.user.id;
     } else {
         ws.id = 'unknown';
     };
-    console.log(ws.id + ' connected');
+    console.log(ws.id + ' connected : ' + ip);
 
     //message handler
     ws.on('message', (message) => {
-        ws.ping();
         message = JSON.parse(message);
-        //message의 이벤트key값에 해당하는 value 별로 행동, event이름을
-        //임의로 지어서 client쪽에서 보내주었었음
         switch (message.event) {
-        //로그인 성공시
-        case 'login':
-            msg = {
-                event: 'login',
-                id: ws.id,
-            };
-            //socket.emit
-            ws.send(JSON.stringify(msg));
-            break;
-        //채팅보낼시
-        case 'chat':
-            msg = {
-                event: 'chat',
-                msg: message.msg,
-                id: ws.id,
-            };
-            //tc
-            try {
+            //로그인 성공시
+            case 'login':
+                msg = {
+                    event: 'login',
+                    id: ws.id,
+                };
+                //socket.emit
+                ws.send(JSON.stringify(msg));
+                break;
+            //채팅보낼시
+            case 'chat':
+                msg = {
+                    event: 'chat',
+                    msg: message.msg,
+                    id: ws.id,
+                };
+                chatExchange.publish('', msg);
                 chatDb.addChat(msg.id, msg.msg);
-                //broadcast
-                wss.clients.forEach((client) => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify(msg));
-                    };
-                });
-            } catch (err) {
-                console.error(err);
-            };
-            break;
+                break;
+            default:
+                break;
         };
     });
-
+    //heartbeat
     interval = setInterval(() => {
         wss.clients.forEach((ws) => {
             if (ws.isAlive === false) {
@@ -165,8 +159,15 @@ wss.on('connection', (ws, req) => {
     ws.on('error', (error) => {
         console.error(error);
     });
-});
 
+    //message queue
+    rabbit.queue('', {exclusive: true}, (q) => {
+        q.bind('chatExchange', '');
+        q.subscribe((msg) => {
+            ws.send(JSON.stringify(msg));
+        });
+    });
+});
 
 
 /* Socket.IO

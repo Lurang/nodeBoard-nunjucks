@@ -65,17 +65,6 @@
                             {% endif %}
                             </div>
                         `);
-                        /*
-                        $(event.target).parent().find(".commentDiv").append(`   
-                            <div class="controlDiv">               
-                            {% if session.isValid %}
-                                <span>@${author}님에게 답글</span>                    
-                                <input type="text" class="form-control" name="comment">
-                                <input type="submit" value="저장">
-                            {% endif %}
-                            </div>
-                        `);
-                        */
                         isOn++;
                     }
                 });
@@ -154,87 +143,92 @@
             {% endif %}
         {% endfor %}
         </div>
-        <form class='form-inline'>
-            <div class='form-group'>
-                <label for='msgForm'>Message: </label>
-                <input type='text' class='form-control' id='msgForm'/>
-            </div>
-            <input type='button' id='sendMessage' class='btn btn-primary' value='send'/>
-        </form>
-    <!--
         {% if session.id %}
-
+            <form class='form-inline'>
+                <div class='form-group'>
+                    <label for='msgForm'>Message: </label>
+                    <input type='text' class='form-control' id='msgForm'/>
+                </div>
+                <input type='button' id='sendMessage' class='btn btn-primary' value='send'/>
+            </form>
         {% else %}
-        <p>로그인이 필요한 서비스입니다.</p>
+            <p>로그인이 필요한 서비스입니다.</p>
         {% endif %}
-    -->
     <!-- webSocket -->
     <!--
     <script src="/js/bundle.js"></script>
     -->
     <script>
-        const ws = new WebSocket('ws://localhost:3000');
-
-        heartbeat = () => {
-            clearTimeout(this.pingTimeout);
-            // 3초뒤에 terminate, 한번도호출되면 전에세팅해둔거 clear함
-            // 서버에서 이미 3초에한번꼴로 ping을보내고있고 그핑에응답하지않으면
-            // terminate된다는 함수
-            this.pingTimeout = setTimeout(() => {
-                this.terminate();
-            }, 3000 + 1000);
-        }
-
-        ws.onopen = () => {
-            heartbeat;
-            ws.send(JSON.stringify({
-                event: 'login',
-            }));
-        }
-        ws.onping = () => {
-            heartbeat;
-        }
-        ws.onclose = () => {
-            $(() => {
-                location.reload();
-            });
-            clearTimeout(this.pingTimeout);
-        }
-        //web socket receive message
-        ws.onmessage = (message) => {
-            let data = JSON.parse(message.data);
-            switch (data.event) {
-                case 'login':
-                    $('#chatLogs').append(`<li style='text-align: center; color: blue;'>${data.id}님이 입장하셨습니다.</li>`);
-                    $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
-                    break;
-                case 'chat':
-                    if ((data.id === '{{session.id}}') || (data.id === 'unknown' && !`{{session}}`)) {
-                        $('#chatLogs').append(`<li style='text-align: right; color: red;'>${data.id}님의 메세지: ${data.msg}</li>`);
-                        $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
-                    } else {
-                        $('#chatLogs').append(`<li style='text-align: left;'>${data.id}님의 메세지: ${data.msg}</li>`);
-                        $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
-                    }
-                    break;
+        const connect = () => {
+            const ws = new WebSocket('ws://localhost:3000');
+            heartbeat = () => {
+                clearTimeout(this.pingTimeout);
+                // 3초뒤에 terminate, 한번도호출되면 전에세팅해둔거 clear함
+                // 서버에서 이미 3초에한번꼴로 ping을보내고있고 그핑에응답하지않으면
+                // terminate된다는 함수
+                this.pingTimeout = setTimeout(() => {
+                    this.terminate();
+                }, 3000 + 1000);
             }
-        };
-        //message button click
-        $(() => {
-            $('#sendMessage').click(() => {
-                const $msgForm = $('#msgForm');
-                if ($msgForm.val() === '') {
-                    return;
-                } else {
-                    let sendData = {
-                        event: 'chat',
-                        msg: $msgForm.val(),
+
+            ws.onopen = () => {
+                heartbeat;
+                ws.send(JSON.stringify({
+                    event: 'login',
+                }));
+            }
+            ws.onping = () => {
+                heartbeat;
+            }
+            ws.onclose = () => {
+                $(() => {
+                    setTimeout(() => {
+                        connect();
+                    }, 1000)
+                });
+                clearTimeout(this.pingTimeout);
+            }
+            //web socket receive message
+            ws.onmessage = (message) => {
+                let data = JSON.parse(message.data);
+                switch (data.event) {
+                    case 'login':
+                        if ('{{session.id}}') {
+                            $('#chatLogs').append(`<li style='text-align: center; color: blue;'>${data.id}님이 입장하셨습니다.</li>`);
+                            $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
+                        } else {
+                            $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
+                        }
+                        break;
+                    case 'chat':
+                        if ((data.id === '{{session.id}}') || (data.id === 'unknown' && !`{{session}}`)) {
+                            $('#chatLogs').append(`<li style='text-align: right; color: red;'>${data.id}님의 메세지: ${data.msg}</li>`);
+                            $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
+                        } else {
+                            $('#chatLogs').append(`<li style='text-align: left;'>${data.id}님의 메세지: ${data.msg}</li>`);
+                            $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
+                        }
+                        break;
+                }
+            };
+            //message button click
+            $(() => {
+                $('#sendMessage').click(() => {
+                    const $msgForm = $('#msgForm');
+                    if ($msgForm.val() === '') {
+                        return;
+                    } else {
+                        let sendData = {
+                            event: 'chat',
+                            msg: $msgForm.val(),
+                        };
+                        ws.send(JSON.stringify(sendData));
+                        $msgForm.val('');
                     };
-                    ws.send(JSON.stringify(sendData));
-                    $msgForm.val('');
-                };
+                });
             });
-        });
+        }
+        connect();
     </script>
     
     <!--            socket io
