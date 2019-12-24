@@ -1,27 +1,27 @@
-{% extends "index.html" %}
+{% extends 'index.html' %}
 
 {% block css %}
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css' integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS' crossorigin='anonymous'>
 {% endblock %}
 
 {% block body %}
     {% macro form(board_name, board_id, post_title, post_id, post_body, page, valueAttr) %}
         <article>
-            <div class="container" role="main">
+            <div class='container' role='main'>
                 <h2>{{board_name}}</h2>
                 {% block formLink %}
-                <form name="form" action="/board/{{board_id}}/{{post_id}}/updatePost?page={{page}}" method="post">
+                <form name='form' action='/board/{{board_id}}/{{post_id}}/updatePost?page={{page}}' method='post'>
                 {% endblock %}
-                    <div class="mb-3">
-                        <label for="title">제목</label>
-                        <input type="text" class="form-control" name="title" id="title" {{valueAttr}}="{{post_title}}"/>
+                    <div class='mb-3'>
+                        <label for='title'>제목</label>
+                        <input type='text' class='form-control' name='title' id='title' {{valueAttr}}='{{post_title}}'/>
                     </div>
-                    <div class="mb-3">
-                        <label for="content">내용</label>
-                        <textarea class="form-control" rows="5" name="body" id="body" {{valueAttr}}="{{post_body}}">{{post_body}}</textarea>
+                    <div class='mb-3'>
+                        <label for='content'>내용</label>
+                        <textarea class='form-control' rows='5' name='body' id='body' {{valueAttr}}='{{post_body}}'>{{post_body}}</textarea>
                     </div>			
                     <div>
-                        <input type="button" onclick="titleTest()" value="저장"/>
+                        <input type='button' onclick='titleTest()' value='저장'/>
                     </div>
                 </form>
             </div>
@@ -31,8 +31,8 @@
                 const postForm = document.form;
                 const title = postForm.title.value;
                 //앞뒤 여백체크?
-                if (title === "" || title.trim() !== title) {
-                    return alert("알맞은 제목을 입력해 주세요.");
+                if (title === '' || title.trim() !== title) {
+                    return alert('알맞은 제목을 입력해 주세요.');
                 } else {
                     postForm.submit();
                 };

@@ -3,23 +3,13 @@
 
 <head>
     <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/styles.css">
-    <style>
-        .chat_logs {
-            width: 95%;
-            height: 200px;
-        }
-
-        .message {
-            width: 70%;
-        }
-    </style>
-    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='/css/styles.css'>
+    <script src='http://code.jquery.com/jquery-latest.min.js' type='text/javascript'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'></script>
     {% block css %}
     {% endblock %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 </head>
 
 <body>
@@ -49,24 +39,24 @@
             let presentTarget = 1;
             let isOn = 0;
             $(() => {
-                $(".commentLi").click((event) => {
+                $('.commentLi').click((event) => {
                     const t = $(event.target).parent();
-                    const author = t.find("li:eq(1)").text();
+                    const author = t.find('li:eq(1)').text();
                     const index = t.parent().index() - 2;
                     if (author) {
                         beforeTarget = presentTarget;
                         presentTarget = index;
                         $(`.commentLi:eq(${index})`).find('.commentDiv').append(`
-                            <div class="controlDiv">               
+                            <div class='controlDiv'>               
                             {% if session.isValid %}
                                 <span>@${author}님에게 답글</span>                    
-                                <input type="text" class="form-control" name="comment">
-                                <input type="submit" value="저장">
+                                <input type='text' class='form-control' name='comment'>
+                                <input type='submit' value='저장'>
                             {% endif %}
                             </div>
                         `);
                         isOn++;
-                    }
+                    };
                 });
             });
             $(() => {
@@ -76,30 +66,30 @@
                             isOn = 0;
                         } else {
                             isOn = 1;
-                        }
+                        };
                         $(`.commentLi:eq(${beforeTarget})`).find('.controlDiv').remove();
-                    }
-                })
-            })            
+                    };
+                });
+            });       
         </script>
         
         <!-- 댓글나열 -->
         {% for com in item %}
-        <li class="commentLi">
+        <li class='commentLi'>
             <ul>
                 {% if com.author %}
-                    <li class="left"><strong><span style="color:red">ㄴ@{{com.author}} </span></strong>{{com.comment_body}}</li>
+                    <li class='left'><strong><span style='color:red'>ㄴ@{{com.author}} </span></strong>{{com.comment_body}}</li>
                 {% else %}
-                    <li class="left">{{com.comment_body}}</li>
+                    <li class='left'>{{com.comment_body}}</li>
                 {% endif %}
                 <li>{{com.comment_author}}</li>
-                <li class="left">{{com.date}}</li>
+                <li class='left'>{{com.date}}</li>
                 {% if session.isValid %}
                     {% if session.admin or com.comment_author == session.id %}
                         <li>
                             <form>
-                                <input type="submit" value="X"
-                                    formAction="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deleteComment/{{com.comment_id}}?page={{page}}", formmethod="POST"/>
+                                <input type='submit' value='X'
+                                    formAction='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deleteComment/{{com.comment_id}}?page={{page}}', formmethod='POST'/>
                             </form>
                         </li>
                     {% else %}
@@ -108,17 +98,16 @@
                 {% else %}
                     <li>X</li>
                 {% endif %}
-                
-                <!--대댓글용-->
             </ul>
-            <form class="commentForm" action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}" method="POST">
-                <input type="hidden" name="pid" value="{{com.comment_id}}"/> <!--부모아이디-->
+            <!--대댓글용-->
+            <form class='commentForm' action='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}' method='POST'>
+                <input type='hidden' name='pid' value='{{com.comment_id}}'/> <!--부모아이디-->
                 {% if com.pid == 0 %}
-                    <input type="hidden" name="group_id" value="{{com.comment_id}}"/>
+                    <input type='hidden' name='group_id' value='{{com.comment_id}}'/>
                 {% else %}
-                    <input type="hidden" name="group_id" value="{{com.group_id}}"/>
+                    <input type='hidden' name='group_id' value='{{com.group_id}}'/>
                 {% endif %}
-                <div class="commentDiv"></div>
+                <div class='commentDiv'></div>
             </form>
         </li>
         {% endfor %}
@@ -154,116 +143,100 @@
         {% else %}
             <p>로그인이 필요한 서비스입니다.</p>
         {% endif %}
-    <!-- webSocket -->
-    <!--
-    <script src="/js/bundle.js"></script>
-    -->
     <script>
+        let lastChat = {
+            chatId: '',
+            author: '',
+            body: '',
+        };
+
+        const heartbeat = () => {
+            clearTimeout(this.pingTimeout);
+            this.pingTimeout = setTimeout(() => {
+                this.terminate();
+            }, 7000 + 1000);
+        };
+
         const connect = () => {
             const ws = new WebSocket('ws://localhost:3000');
-            heartbeat = () => {
-                clearTimeout(this.pingTimeout);
-                // 3초뒤에 terminate, 한번도호출되면 전에세팅해둔거 clear함
-                // 서버에서 이미 3초에한번꼴로 ping을보내고있고 그핑에응답하지않으면
-                // terminate된다는 함수
-                this.pingTimeout = setTimeout(() => {
-                    this.terminate();
-                }, 3000 + 1000);
-            }
-
             ws.onopen = () => {
                 heartbeat;
                 ws.send(JSON.stringify({
                     event: 'login',
+                    data: lastChat,
                 }));
             }
             ws.onping = () => {
                 heartbeat;
             }
             ws.onclose = () => {
-                $(() => {
-                    setTimeout(() => {
-                        connect();
-                    }, 1000)
-                });
+                setTimeout(() => {}, 1000);
                 clearTimeout(this.pingTimeout);
+                // AUTO reconnect
+                connect();
             }
             //web socket receive message
             ws.onmessage = (message) => {
                 let data = JSON.parse(message.data);
+                const chatLogs = document.getElementById('chatLogs')
                 switch (data.event) {
                     case 'login':
+                        if (data.chat) {
+                            data.chat.forEach((element) => {
+                                if ((data.id === '{{session.id}}') || (data.id === 'unknown' && !`{{session}}`)) {
+                                    chatLogs.innerHTML += `<li style='text-align: right; color: red;'>${element.author}님의 메세지: ${element.body}</li>`;
+                                    chatLogs.scrollTop = chatLogs.scrollHeight;
+                                } else {
+                                    chatLogs.innerHTML += `<li style='text-align: left;'>${element.author}님의 메세지: ${element.body}</li>`;
+                                    chatLogs.scrollTop = chatLogs.scrollHeight;
+                                };
+                                lastChat.author = element.author;
+                                lastChat.body = element.body;
+                            });
+                        };
                         if ('{{session.id}}') {
-                            $('#chatLogs').append(`<li style='text-align: center; color: blue;'>${data.id}님이 입장하셨습니다.</li>`);
-                            $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
+                            chatLogs.innerHTML += `<li style='text-align: center; color: blue;'>${data.id}님이 입장하셨습니다.</li>`;
+                            chatLogs.scrollTop = chatLogs.scrollHeight;
                         } else {
-                            $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
-                        }
+                            chatLogs.scrollTop = chatLogs.scrollHeight;
+                        };
+                        lastChat.chatId = data.lastId;
                         break;
                     case 'chat':
                         if ((data.id === '{{session.id}}') || (data.id === 'unknown' && !`{{session}}`)) {
-                            $('#chatLogs').append(`<li style='text-align: right; color: red;'>${data.id}님의 메세지: ${data.msg}</li>`);
-                            $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
+                            chatLogs.innerHTML += `<li style='text-align: right; color: red;'>${data.id}님의 메세지: ${data.msg}</li>`;
+                            chatLogs.scrollTop = chatLogs.scrollHeight;
                         } else {
-                            $('#chatLogs').append(`<li style='text-align: left;'>${data.id}님의 메세지: ${data.msg}</li>`);
-                            $('#chatLogs').scrollTop($('#chatLogs')[0].scrollHeight);
-                        }
+                            chatLogs.innerHTML += `<li style='text-align: left;'>${data.id}님의 메세지: ${data.msg}</li>`;
+                            chatLogs.scrollTop = chatLogs.scrollHeight;
+                            lastChat.chatId += 1;
+                        };
+                        lastChat.author = data.id;
+                        lastChat.body = data.msg;
                         break;
                 }
             };
             //message button click
-            $(() => {
-                $('#sendMessage').click(() => {
-                    const $msgForm = $('#msgForm');
-                    if ($msgForm.val() === '') {
-                        return;
-                    } else {
-                        let sendData = {
-                            event: 'chat',
-                            msg: $msgForm.val(),
-                        };
-                        ws.send(JSON.stringify(sendData));
-                        $msgForm.val('');
-                    };
-                });
-            });
-        }
-        connect();
-    </script>
-    
-    <!--            socket io
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        socket.emit("login", {
-            id: "{{session.id}}",
-        });
-        socket.on("login", (data) => {
-            $("#chatLogs").append(data + "님이 입장하셨습니다.\n");
-        });
-        socket.on("disconnect", (data) => {
-            $("#chatLogs").append(data.msg + "님이 퇴장하셨습니다.\n");
-        });
-        //message
-        $(() => {
-            $("#sendMessage").click(() => {
-                const $msgForm = $("#msgForm");
-                if ($msgForm.val() === "") {
+            const button = document.getElementById('sendMessage');
+            button.onclick = () => {
+                let msgForm = document.getElementById('msgForm');
+                if (msgForm.value === '') {
                     return;
                 } else {
-                    socket.emit("chat", {
-                        msg: $msgForm.val(),
-                    });
-                    $msgForm.val("");
+                    lastChat.author = '{{session.id}}';
+                    lastChat.body = msgForm.value;
+                    lastChat.chatId += 1;
+                    let sendData = {
+                        event: 'chat',
+                        msg: msgForm.value,
+                    };
+                    ws.send(JSON.stringify(sendData));
+                    msgForm.value = '';
                 };
-            });
-            socket.on("chat", (data) => {
-                $("#chatLogs").append(data.from.id + "님의 메세지: " + data.msg + '\n');
-                $("#chatLogs").scrollTop($('#chatLogs')[0].scrollHeight);
-            });
-        });
+            };
+        };
+        connect();
     </script>
-    -->
     {% endblock %}
     </footer> <!-- footer -->
 </div> <!-- container -->

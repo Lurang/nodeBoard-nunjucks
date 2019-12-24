@@ -52,10 +52,9 @@ app.set('view engine', 'html');
 //cors error
 //app.use(cors())
 app.use((req, res, next) => {
-    //res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin',
      '*',
-    ); //*대신 specific domain
+    ); // *대신 specific domain
     res.setHeader(
         'Access-Control-Allow-Methods',
         'GET, POST, PUT, PATCH, DELETE',
@@ -74,6 +73,7 @@ const auth = (req, res, next) => {
     }
     res.redirect('/');
 };
+
 //routes
 app.use(indexRouter.routes);
 app.use('/user', userRouter.routes);
@@ -91,7 +91,7 @@ const wss = new WebSocket.Server({
     server,
 });
 
-//rabbitmq
+//rabbitmq - amqp
 const rabbit = amqp.createConnection({});
 let chatExchange;
 rabbit.on('ready', () => {
@@ -109,22 +109,25 @@ wss.on('connection', (ws, req) => {
     } else {
         ws.id = 'unknown';
     };
-    console.log(ws.id + ' connected : ' + ip);
+    console.log(ws.id + ' connected -> ' + ip);
 
     //message handler
-    ws.on('message', (message) => {
+    ws.on('message', async (message) => {
         message = JSON.parse(message);
         switch (message.event) {
-            //로그인 성공시
+            // login success
             case 'login':
+                const [lastId] = await chatDb.lastChatId();    
+                const [dChat] = await chatDb.lastChats(message.data.author, message.data.body, message.data.chatId);
                 msg = {
                     event: 'login',
                     id: ws.id,
+                    chat: dChat,
+                    lastId: lastId[0].chat_id,
                 };
-                //socket.emit
                 ws.send(JSON.stringify(msg));
                 break;
-            //채팅보낼시
+            // send chat
             case 'chat':
                 msg = {
                     event: 'chat',
@@ -132,26 +135,14 @@ wss.on('connection', (ws, req) => {
                     id: ws.id,
                 };
                 chatExchange.publish('', msg);
-                chatDb.addChat(msg.id, msg.msg);
+                await chatDb.addChat(msg.id, msg.msg);
                 break;
             default:
                 break;
         };
     });
-    //heartbeat
-    interval = setInterval(() => {
-        wss.clients.forEach((ws) => {
-            if (ws.isAlive === false) {
-                return ws.close();
-            };
-            ws.isAlive = false;
-            ws.ping();
-        });
-    }, 3000);
-    //  receive pong
     ws.on('pong', () => {
         ws.isAlive = true;
-        //console.log(ws.id + ' receive a pong');
     });
     ws.on('close', (data) => {
         console.log(ws.id + ' terminated - ' + data);
@@ -169,41 +160,15 @@ wss.on('connection', (ws, req) => {
     });
 });
 
-
-/* Socket.IO
-const server = http.createServer (app);
-const io = require ('socket.io') (server);
-
-io.on ('connection', socket => {
-  socket.on ('disconnect', () => {
-    io.emit ('disconnect', {
-      msg: socket.id,
+//heartbeat
+const interval = setInterval(() => {
+    wss.clients.forEach((ws) => {
+        if (ws.isAlive === false) {
+            return ws.close();
+        };
+        ws.isAlive = false;
+        ws.ping();
     });
-  });
-  socket.on ('login', data => {
-    if (!data.id) {
-      data.id = 'unknown';
-    }
-    socket.id = data.id;
-    io.emit ('login', data.id);
-  });
-
-  socket.on ('chat', data => {
-    socket.broadcast.emit ('chat', {
-      from: {
-        id: socket.id,
-      },
-      msg: data.msg,
-    });
-  });
-});
-*/
-/*
-  io.emit => 접속된 모든클라이언트에게 전송
-  socket.emit => 전송한 클라이언트에게만 전송
-  socket.broadcast.emit => 메시지를 전송한 클라이언트를 제외한 모든클라이언트
-              말그대로 브로드캐스트
-  io.to(id).emit 특정클라이언트에게만 메시지, id는 socket객체의 id속성값;
-*/
+}, 7000);
 
 server.listen(3000); //app.listen(3000);

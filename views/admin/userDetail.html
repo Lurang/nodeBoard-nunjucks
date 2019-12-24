@@ -1,29 +1,29 @@
-{% extends "index.html" %}
+{% extends 'index.html' %}
 
 {% block body %}
     <div>
         <form>
-            <ul class="form-style">
+            <ul class='form-style'>
                 <li>
                     <label>ID:</label>
-                    <input type="text" name="id" value="{{user.c_id}}" readOnly></input>
+                    <input type='text' name='id' value='{{user.c_id}}'' readOnly></input>
                 </li>
                 <li>
                     <label>NAME</label>    
                     <input name='name' value={{user.c_name}}></input>
                 </li>
                 <li>
-                    <input type="submit" value="Fix" formAction="/user/updateUser", formmethod="POST"/>
-                    <input type="submit" value="X" formAction="/user/deleteUser", formmethod="POST"/>
+                    <input type='submit' value='Fix' formAction='/user/updateUser', formmethod='POST'/>
+                    <input type='submit' value='X' formAction='/user/deleteUser', formmethod='POST'/>
                 </li>
             </ul>
         </form>
     </div>
 
-    <div id="mainWrapper">
+    <div id='mainWrapper'>
         <ul>
             <li>
-                <ul id="ulTable">
+                <ul id='ulTable'>
                     <li>
                         <ul>
                             <li>게시판</li>
@@ -36,22 +36,22 @@
                     {% for list in posts%}
                         <li>
                             <ul>
-                                <li class="center">{{list.board_name}}</li>
+                                <li class='center'>{{list.board_name}}</li>
                                 <li>
-                                    <a href="/board/{{list.board_id}}/{{list.post_id}}">{{list.post_title}}</a>
+                                    <a href='/board/{{list.board_id}}/{{list.post_id}}'>{{list.post_title}}</a>
                                 </li>
-                                <li class="center">{{list.date}}</li>
-                                <li class="center">{{list.author}}</li>
-                                <li class="center">{{list.count}}</li>
+                                <li class='center'>{{list.date}}</li>
+                                <li class='center'>{{list.author}}</li>
+                                <li class='center'>{{list.count}}</li>
                             </ul>
                         </li>
                     {% endfor %}
                     <li>
-                        <div id="divPaging">
+                        <div id='divPaging'>
                             <div>◀</div>
                             {% for i in range(1, maxPage + 1) %}
                                 {% block paging %}
-                                    <div><a href="/admin/userManagement/{{user.c_id}}?page={{i}}">{{i}}</a></div>
+                                    <div><a href='/admin/userManagement/{{user.c_id}}?page={{i}}''>{{i}}</a></div>
                                 {% endblock %}
                             {% endfor %}
                             <div>▶</div>

@@ -1,13 +1,13 @@
-{% extends "index.html" %}
+{% extends 'index.html' %}
 
 {% block body %}
 <article>
-    <div class='wrapper' role="main">
+    <div class='wrapper' role='main'>
         <h2>{{boardInfo.board_name}}</h2>
 
         {% macro mb3(label, title, things) %}
-        <div class="mb-3">
-            <label for="{{label}}">{{title}} : {{things}}</label>
+        <div class='mb-3'>
+            <label for='{{label}}'>{{title}} : {{things}}</label>
         </div>
         {% endmacro %}
 
@@ -17,12 +17,12 @@
     </div>
 </article>
 <div>
-    <a href="/board/{{boardInfo.board_id}}?page={{page}}"><button type="button">목록으로</button></a>
+    <a href='/board/{{boardInfo.board_id}}?page={{page}}'><button type='button'>목록으로</button></a>
     {% if session.admin or postInfo.author == session.id %}
-    <a href="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/updatePost?page={{page}}"><button
-            type="button">수정</button></a>
-    <form action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deletePost?page={{page}}" method="POST">
-        <button type="submit">삭제</button>
+    <a href='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/updatePost?page={{page}}'><button
+            type='button'>수정</button></a>
+    <form action='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deletePost?page={{page}}' method='POST'>
+        <button type='submit'>삭제</button>
     </form>
     {% endif %}
 </div>
@@ -30,16 +30,16 @@
 <div>
     <h2>comment</h2>
     {% if session.isValid %}
-    <form action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}" method="POST">
-        <input type="text" class="form-control" name="comment" id="comment">
-        <input type="submit" value="저장">
+    <form action='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}' method='POST'>
+        <input type='text' class='form-control' name='comment' id='comment'>
+        <input type='submit' value='저장'>
     </form>
     {% endif %}
 </div>
-<div id="mainWrapper2">
+<div id='mainWrapper2'>
     <ul>
         <li>
-            <ul id="ulTable2">
+            <ul id='ulTable2'>
                 <li>
                     <ul>
                         <li>내용</li>

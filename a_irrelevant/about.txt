@@ -281,6 +281,8 @@ nunjucks autoescape: true, 하는게좋고 특별한경우에만 raw?
 ////////////////
     12-17
     불필요한 module제거 띄어쓰기, 컴마 잘찍기, post관련되어 예외처리 로직오류수정
+    npm ls -s --depth=0 로 save애들확인
+
     socket.id를 이용해 index페이지에서 채팅화면구현
     (아직 구상단계 구현x)
     댓글에 댓글?
@@ -735,9 +737,15 @@ chat 이벤트 관련해서 rabbitmq 적용함 sudo rabbitmqctl list_queues
 amqp처음 설정할때, type fanout옵션을 줬는데 얘가 broadcast인듯
 그니까 2명 * broadcast2번 해서 4번요청이간듯?
 //////////////////////////////////////////////////////////
+12-24
+index.html에있던 소켓관련 jquery가 함수안에들어가서 작동을 안했던거였음
+이걸 vanilla로 수정해줌 이제 socket이꺼졌을때 정상적으로 재작동함 ㅋㅋㅋ
+interval위치 수정하고 pong도중에 꺼지는현상도 사라짐, 아마 overflow관련인듯?
 
-
-
+근데문제점, 이전까지 보냈던 메세지는 출력이안댐,
+채팅메세지를 받을때마다 걔의 메세지와 작성자를 특정변수에 저장함 -> 와근데이러면 같은메세지 2번보내면 하나가유실되어버림 -> chat_id를넘겨주고 event를받을때마다 +1시켜줌
+connect 될때마다 얘번호 이후의 메세지를 db에 요청해서 불러옴
+해결완료, reconnect될때 못추가한애들 불러옴
 /////////////////////////////////////////////
   
     RoadMap
@@ -755,7 +763,7 @@ amqp처음 설정할때, type fanout옵션을 줬는데 얘가 broadcast인듯
                            - pm2
                            - commander.js (passport, jshint)
     task scheduling - agenda, node-schedule
-    microServices - message-broker - RabbitMQ,
+    microServices - message-broker - RabbitMQ★,
                   - Message-bus - busmq
 
     design patterns - factory, prototype, middlewares, singleton, state, observer...

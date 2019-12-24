@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends 'index.html' %}
 
 {% block body %}
 <!-- macro area -->
@@ -126,7 +126,7 @@
                 return alert('id중복확인을 해주세요.');
             };
             if (id === '' || checkSpace(id) || name === '' || checkSpace(name) || password === '' || checkSpace(password)) {
-                alert("빈칸없이 입력해주세요.");
+                alert('빈칸없이 입력해주세요.');
                 signupForm.id.value = '';
                 signupForm.name.value = '';
                 signupForm.password.value = '';
