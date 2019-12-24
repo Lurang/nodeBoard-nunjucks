@@ -1,31 +1,71 @@
 {% extends 'index.html' %}
-
 {% block css %}
-<link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css' integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS' crossorigin='anonymous'>
-{% endblock %}
+<style>
+.main {
+    display: flex;
+}
+.mainContainer {
+	display: flex;
+	flex: 1;
+}
+.leftDiv {
+	flex: 7;
+}
+.leftDiv > h2 {
+	flex: 1;
+}
+.marginDiv {
+	flex: 3;
+}
 
+.mb-3 {
+	display: flex;
+}
+.postTitle {
+	flex: 1;
+	text-align: center;
+}
+#title,
+#body {
+	flex: 9;
+}
+
+.buttonDiv {
+	display: flex;
+	flex-direction: row-reverse;
+}
+.buttonDiv > input {
+	flex: 2;
+}
+.buttonDiv > input+li {
+	flex: 8;
+}
+</style>    
+{% endblock %}
 {% block body %}
     {% macro form(board_name, board_id, post_title, post_id, post_body, page, valueAttr) %}
-        <article>
-            <div class='container' role='main'>
+        <div class='mainContainer' role='main'>
+            <div class='leftDiv'>
                 <h2>{{board_name}}</h2>
                 {% block formLink %}
                 <form name='form' action='/board/{{board_id}}/{{post_id}}/updatePost?page={{page}}' method='post'>
                 {% endblock %}
                     <div class='mb-3'>
-                        <label for='title'>제목</label>
+                        <label class='postTitle'>제목</label>
                         <input type='text' class='form-control' name='title' id='title' {{valueAttr}}='{{post_title}}'/>
                     </div>
                     <div class='mb-3'>
-                        <label for='content'>내용</label>
-                        <textarea class='form-control' rows='5' name='body' id='body' {{valueAttr}}='{{post_body}}'>{{post_body}}</textarea>
+                        <label class='postTitle'>내용</label>
+                        <textarea class='form-control' rows='15' name='body' id='body' {{valueAttr}}='{{post_body}}'>{{post_body}}</textarea>
                     </div>			
-                    <div>
-                        <input type='button' onclick='titleTest()' value='저장'/>
+                    <div class='buttonDiv'>
+                        <input type='button' class='mb3Button' onclick='titleTest()' value='저장'/>
+                        <li></li>
                     </div>
                 </form>
             </div>
-        </article>
+            <div class='marginDiv'></div>
+        </div>
         <script>
             const titleTest = () => {
                 const postForm = document.form;
