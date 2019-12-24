@@ -52,11 +52,11 @@
                 {% endblock %}
                     <div class='mb-3'>
                         <label class='postTitle'>제목</label>
-                        <input type='text' class='form-control' name='title' id='title' {{valueAttr}}='{{post_title}}'/>
+                        <input type='text' name='title' id='title' {{valueAttr}}='{{post_title}}'/>
                     </div>
                     <div class='mb-3'>
                         <label class='postTitle'>내용</label>
-                        <textarea class='form-control' rows='15' name='body' id='body' {{valueAttr}}='{{post_body}}'>{{post_body}}</textarea>
+                        <textarea rows='15' name='body' id='body' {{valueAttr}}='{{post_body}}'>{{post_body}}</textarea>
                     </div>			
                     <div class='buttonDiv'>
                         <input type='button' class='mb3Button' onclick='titleTest()' value='저장'/>

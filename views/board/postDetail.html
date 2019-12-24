@@ -1,28 +1,60 @@
 {% extends 'index.html' %}
 
+{% block css %}
+<style>
+.wrapper {
+    display: flex;
+    flex-direction: column;
+}
+.mb-3,
+.button3{
+    display: flex;
+}
+#else,
+#bodyText {
+    flex: 9;
+}
+.contentLi,
+.deleteForm {
+    flex: 1;
+}
+.deleteButton {
+    float: right;
+}
+</style>
+{% endblock %}
+
 {% block body %}
-<article>
     <div class='wrapper' role='main'>
         <h2>{{boardInfo.board_name}}</h2>
 
-        {% macro mb3(label, title, things) %}
+        {% macro mb3(title, things) %}
         <div class='mb-3'>
-            <label for='{{label}}'>{{title}} : {{things}}</label>
+            <li class='contentLi'>{{title}} : </li>
+            <li id='else'>{{things}}</li>
         </div>
         {% endmacro %}
 
-        {{mb3('title', '제목', postInfo.post_title)}}
-        {{mb3('content', '작성자', postInfo.author)}}
-        {{mb3('content', '내용', postInfo.post_body)}}
+        {{mb3('제목', postInfo.post_title)}}
+        {{mb3('작성자', postInfo.author)}}
+        <div class='mb-3'>
+            <li class='contentLi'>내용 :</li>
+            <li id='bodyText'></li>
+        </div>
     </div>
-</article>
-<div>
+    <script>
+        let text = `{{postInfo.post_body}}`;
+        console.log(text);
+        text = text.replace(/(?:\r\n|\r|\n)/g, '<br />');
+        document.getElementById('bodyText').innerHTML = text
+    </script>
+<div class='button3'>
     <a href='/board/{{boardInfo.board_id}}?page={{page}}'><button type='button'>목록으로</button></a>
     {% if session.admin or postInfo.author == session.id %}
     <a href='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/updatePost?page={{page}}'><button
             type='button'>수정</button></a>
-    <form action='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deletePost?page={{page}}' method='POST'>
-        <button type='submit'>삭제</button>
+    <form class='deleteForm' action='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deletePost?page={{page}}' method='POST'>
+        <button class='deleteButton' type='submit'>삭제</button>
     </form>
     {% endif %}
 </div>
