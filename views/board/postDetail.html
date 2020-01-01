@@ -1,4 +1,4 @@
-{% extends 'index.html' %}
+{% extends "index.html" %}
 
 {% block css %}
 <style>
@@ -25,36 +25,36 @@
 {% endblock %}
 
 {% block body %}
-    <div class='wrapper' role='main'>
+    <div class="wrapper" role="main">
         <h2>{{boardInfo.board_name}}</h2>
 
         {% macro mb3(title, things) %}
-        <div class='mb-3'>
-            <li class='contentLi'>{{title}} : </li>
-            <li id='else'>{{things}}</li>
+        <div class="mb-3">
+            <li class="contentLi">{{title}} : </li>
+            <li id="else">{{things}}</li>
         </div>
         {% endmacro %}
 
-        {{mb3('제목', postInfo.post_title)}}
-        {{mb3('작성자', postInfo.author)}}
-        <div class='mb-3'>
-            <li class='contentLi'>내용 :</li>
-            <li id='bodyText'></li>
+        {{mb3("제목", postInfo.post_title)}}
+        {{mb3("작성자", postInfo.author)}}
+        <div class="mb-3">
+            <li class="contentLi">내용 :</li>
+            <li id="bodyText"></li>
         </div>
     </div>
     <script>
         let text = `{{postInfo.post_body}}`;
         console.log(text);
-        text = text.replace(/(?:\r\n|\r|\n)/g, '<br />');
-        document.getElementById('bodyText').innerHTML = text
+        text = text.replace(/(?:\r\n|\r|\n)/g, "<br />");
+        document.getElementById("bodyText").innerHTML = text
     </script>
-<div class='button3'>
-    <a href='/board/{{boardInfo.board_id}}?page={{page}}'><button type='button'>목록으로</button></a>
+<div class="button3">
+    <a href="/board/{{boardInfo.board_id}}?page={{page}}"><button type="button">목록으로</button></a>
     {% if session.admin or postInfo.author == session.id %}
-    <a href='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/updatePost?page={{page}}'><button
-            type='button'>수정</button></a>
-    <form class='deleteForm' action='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deletePost?page={{page}}' method='POST'>
-        <button class='deleteButton' type='submit'>삭제</button>
+    <a href="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/updatePost?page={{page}}"><button
+            type="button">수정</button></a>
+    <form class="deleteForm" action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deletePost?page={{page}}" method="POST">
+        <button class="deleteButton" type="submit">삭제</button>
     </form>
     {% endif %}
 </div>
@@ -62,16 +62,16 @@
 <div>
     <h2>comment</h2>
     {% if session.isValid %}
-    <form action='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}' method='POST'>
-        <input type='text' class='form-control' name='comment' id='comment'>
-        <input type='submit' value='저장'>
+    <form action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}" method="POST">
+        <input type="text" class="form-control" name="comment" id="comment">
+        <input type="submit" value="저장">
     </form>
     {% endif %}
 </div>
-<div id='mainWrapper2'>
+<div id="mainWrapper2">
     <ul>
         <li>
-            <ul id='ulTable2'>
+            <ul id="ulTable2">
                 <li>
                     <ul>
                         <li>내용</li>

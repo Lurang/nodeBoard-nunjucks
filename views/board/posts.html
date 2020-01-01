@@ -1,11 +1,11 @@
-{% extends 'index.html' %}
+{% extends "index.html" %}
 
 {% block body %}
-    <div id='mainWrapper'>
+    <div id="mainWrapper">
         <ul>
             <li>
                 <li> {{boardName.board_name}} </li>
-                <ul id='ulTable'>
+                <ul id="ulTable">
                     <li>
                         <ul>
                             <li>No</li>
@@ -20,24 +20,24 @@
                         {% set index = index + 1 %}
                         <li>
                             <ul>
-                                <li class='center'>{{index}}</li>
-                                <li><a href='/board/{{boardName.board_id}}/{{list.post_id}}?page={{page.currentPage}}'>
+                                <li class="center">{{index}}</li>
+                                <li><a href="/board/{{boardName.board_id}}/{{list.post_id}}?page={{page.currentPage}}">
                                     {{list.post_title}}
                                 </a></li>
-                                <li class='center'>{{list.date}}</li>
-                                <li class='center'>{{list.author}}</li>
-                                <li class='center'>{{list.count}}</li>
+                                <li class="center">{{list.date}}</li>
+                                <li class="center">{{list.author}}</li>
+                                <li class="center">{{list.count}}</li>
                             </ul>
                         </li>	
                     {% endfor %}				
                 </ul>
             </li>
             <li>
-                <div id='divPaging'>
+                <div id="divPaging">
                     <div>◀</div>
                     {% for i in range(1, page.maxPage + 1) %}
                         {% block paging %}
-                            <div><a href='/board/{{boardName.board_id}}?page={{i}}'>{{i}}</a></div>
+                            <div><a href="/board/{{boardName.board_id}}?page={{i}}">{{i}}</a></div>
                         {% endblock %}
                     {% endfor %}
                     <div>▶</div>
@@ -46,7 +46,7 @@
             {% if session.isValid %}
                 {% if session.admin or boardName.admin == false %}
                     <li>
-                        <a href='/board/{{boardName.board_id}}/addPost?page={{page.currentPage}}'><button>NEW POST</button></a>
+                        <a href="/board/{{boardName.board_id}}/addPost?page={{page.currentPage}}"><button>NEW POST</button></a>
                     </li>
                 {% endif %}
             {% endif %}            

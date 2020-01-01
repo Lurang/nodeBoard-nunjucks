@@ -1,9 +1,9 @@
-{% extends 'board/postUpdate.html' %}
+{% extends "board/postUpdate.html" %}
 
 {% block formLink %}
-    <form name='form' action='/board/{{boardInfo.board_id}}/addPost?page={{page}}'' method='post'>
+    <form name="form" action="/board/{{boardInfo.board_id}}/addPost?page={{page}}" method="post">
 {% endblock %}
 
 {% block macro %}
-    {{form(boardInfo.board_name, boardInfo.board_id, '제목을 입력해 주세요', page=page, valueAttr='placeholder')}}
+    {{form(boardInfo.board_name, boardInfo.board_id, "제목을 입력해 주세요", page=page, valueAttr="placeholder")}}
 {% endblock %}

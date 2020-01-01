@@ -2,33 +2,33 @@
 <html>
 
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' href='/css/styles.css'>
-    <script src='http://code.jquery.com/jquery-latest.min.js' type='text/javascript'></script>
-    <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     {% block css %}
     {% endblock %}
 </head>
 
 <body>
-<div class='container'>
-    <div id='cssmenu'>
+<div class="container">
+    <div id="cssmenu">
         <ul>
-            <li><a href='/'><span>Home</span></a></li>
+            <li><a href="/"><span>Home</span></a></li>
             {% for list in board %}
-                <li><a href='/board/{{list.board_id}}'><span>{{list.board_name}}</span></a></li>
+                <li><a href="/board/{{list.board_id}}"><span>{{list.board_name}}</span></a></li>
             {% endfor %}
             {% if session.isValid %}
                 {% if session.admin %}
-                    <li><a href='/admin'><span>adminPage</span></a></li>
+                    <li><a href="/admin"><span>adminPage</span></a></li>
                 {% else %}
-                    <li><a href='/user/info'>userPage</a></li>
+                    <li><a href="/user/info">userPage</a></li>
                 {% endif %}
-                <li class='last'><a href='/user/logout'><span>Logout</span></a></li>
+                <li class="last"><a href="/user/logout"><span>Logout</span></a></li>
             {% else %}
-                <li class='last'><a href='/user/login'><span>Login</span></a></li>
+                <li class="last"><a href="/user/login"><span>Login</span></a></li>
             {% endif %}
         </ul>
     </div>
@@ -39,19 +39,19 @@
             let presentTarget = 1;
             let isOn = 0;
             $(() => {
-                $('.commentLi').click((event) => {
+                $(".commentLi").click((event) => {
                     const t = $(event.target).parent();
-                    const author = t.find('li:eq(1)').text();
+                    const author = t.find("li:eq(1)").text();
                     const index = t.parent().index() - 2;
                     if (author) {
                         beforeTarget = presentTarget;
                         presentTarget = index;
-                        $(`.commentLi:eq(${index})`).find('.commentDiv').append(`
-                            <div class='controlDiv'>               
+                        $(`.commentLi:eq(${index})`).find(".commentDiv").append(`
+                            <div class="controlDiv">               
                             {% if session.isValid %}
                                 <span>@${author}님에게 답글</span>                    
-                                <input type='text' class='form-control' name='comment'>
-                                <input type='submit' value='저장'>
+                                <input type="text" class="form-control" name="comment">
+                                <input type="submit" value="저장">
                             {% endif %}
                             </div>
                         `);
@@ -67,7 +67,7 @@
                         } else {
                             isOn = 1;
                         };
-                        $(`.commentLi:eq(${beforeTarget})`).find('.controlDiv').remove();
+                        $(`.commentLi:eq(${beforeTarget})`).find(".controlDiv").remove();
                     };
                 });
             });       
@@ -75,21 +75,21 @@
         
         <!-- 댓글나열 -->
         {% for com in item %}
-        <li class='commentLi'>
+        <li class="commentLi">
             <ul>
                 {% if com.author %}
-                    <li class='left'><strong><span style='color:red'>ㄴ@{{com.author}} </span></strong>{{com.comment_body}}</li>
+                    <li class="left"><strong><span style="color:red">ㄴ@{{com.author}} </span></strong>{{com.comment_body}}</li>
                 {% else %}
-                    <li class='left'>{{com.comment_body}}</li>
+                    <li class="left">{{com.comment_body}}</li>
                 {% endif %}
                 <li>{{com.comment_author}}</li>
-                <li class='left'>{{com.date}}</li>
+                <li class="left">{{com.date}}</li>
                 {% if session.isValid %}
                     {% if session.admin or com.comment_author == session.id %}
                         <li>
                             <form>
-                                <input type='submit' value='X'
-                                    formAction='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deleteComment/{{com.comment_id}}?page={{page}}', formmethod='POST'/>
+                                <input type="submit" value="X"
+                                    formAction="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/deleteComment/{{com.comment_id}}?page={{page}}", formmethod="POST"/>
                             </form>
                         </li>
                     {% else %}
@@ -100,19 +100,19 @@
                 {% endif %}
             </ul>
             <!--대댓글용-->
-            <form class='commentForm' action='/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}' method='POST'>
-                <input type='hidden' name='pid' value='{{com.comment_id}}'/> <!--부모아이디-->
+            <form class="commentForm" action="/board/{{boardInfo.board_id}}/{{postInfo.post_id}}/addComment?page={{page}}" method="POST">
+                <input type="hidden" name="pid" value="{{com.comment_id}}"/> <!--부모아이디-->
                 {% if com.pid == 0 %}
-                    <input type='hidden' name='group_id' value='{{com.comment_id}}'/>
+                    <input type="hidden" name="group_id" value="{{com.comment_id}}"/>
                 {% else %}
-                    <input type='hidden' name='group_id' value='{{com.group_id}}'/>
+                    <input type="hidden" name="group_id" value="{{com.group_id}}"/>
                 {% endif %}
-                <div class='commentDiv'></div>
+                <div class="commentDiv"></div>
             </form>
         </li>
         {% endfor %}
     {% endmacro %}
-    <main class='main'>
+    <main class="main">
     {% block body %}
         {% if session.isValid %}
             <p>welcome! : {{session.id}}</p>
@@ -121,33 +121,35 @@
         {% endif %}
     {% endblock %}
     </main>
-    <footer class='footer'>
+
+
+    <footer class="footer">
     {% block footer %}
-        <div id='chatLogs' class='chat_logs'>
+        <div id="chatLogs" class="chat_logs">
         {% for chat in chats%}
             {% if chat.author === session.id %}
-                <li style='text-align:right; color:red;';>{{chat.author}}님의 메세지: {{chat.body}}</li>            
+                <li style="text-align:right; color:red;">{{chat.author}}님의 메세지: {{chat.body}}</li>            
             {% else %}
-                <li style='text-align:left';>{{chat.author}}님의 메세지: {{chat.body}}</li>
+                <li style="text-align:left;">{{chat.author}}님의 메세지: {{chat.body}}</li>
             {% endif %}
         {% endfor %}
         </div>
         {% if session.id %}
-            <form class='form-inline'>
-                <div class='form-group'>
-                    <label for='msgForm'>Message: </label>
-                    <input type='text' class='form-control' id='msgForm'/>
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="msgForm">Message: </label>
+                    <input type="text" class="form-control" id="msgForm"/>
                 </div>
-                <input type='button' id='sendMessage' class='btn btn-primary' value='send'/>
+                <input type="button" id="sendMessage" class="btn btn-primary" value="send"/>
             </form>
         {% else %}
             <p>로그인이 필요한 서비스입니다.</p>
         {% endif %}
     <script>
         let lastChat = {
-            chatId: '',
-            author: '',
-            body: '',
+            chatId: "",
+            author: "",
+            body: "",
         };
 
         const heartbeat = () => {
@@ -158,11 +160,11 @@
         };
 
         const connect = () => {
-            const ws = new WebSocket('ws://localhost:3000');
+            const ws = new WebSocket("ws://localhost:3000");
             ws.onopen = () => {
                 heartbeat;
                 ws.send(JSON.stringify({
-                    event: 'login',
+                    event: "login",
                     data: lastChat,
                 }));
             }
@@ -178,60 +180,60 @@
             //web socket receive message
             ws.onmessage = (message) => {
                 let data = JSON.parse(message.data);
-                const chatLogs = document.getElementById('chatLogs')
+                const chatLogs = document.getElementById("chatLogs")
                 switch (data.event) {
-                    case 'login':
+                    case "login":
                         if (data.chat) {
                             data.chat.forEach((element) => {
-                                if ((data.id === '{{session.id}}') || (data.id === 'unknown' && !`{{session}}`)) {
-                                    chatLogs.innerHTML += `<li style='text-align: right; color: red;'>${element.author}님의 메세지: ${element.body}</li>`;
+                                if ((data.id === "{{session.id}}") || (data.id === "unknown" && !`{{session}}`)) {
+                                    chatLogs.innerHTML += `<li style="text-align: right; color: red;">${element.author}님의 메세지: ${element.body}</li>`;
                                     chatLogs.scrollTop = chatLogs.scrollHeight;
                                 } else {
-                                    chatLogs.innerHTML += `<li style='text-align: left;'>${element.author}님의 메세지: ${element.body}</li>`;
+                                    chatLogs.innerHTML += `<li style="text-align: left;">${element.author}님의 메세지: ${element.body}</li>`;
                                     chatLogs.scrollTop = chatLogs.scrollHeight;
                                 };
                                 lastChat.author = element.author;
                                 lastChat.body = element.body;
                             });
                         };
-                        if ('{{session.id}}') {
-                            chatLogs.innerHTML += `<li style='text-align: center; color: blue;'>${data.id}님이 입장하셨습니다.</li>`;
+                        if ("{{session.id}}") {
+                            chatLogs.innerHTML += `<li style="text-align: center; color: blue;">${data.id}님이 입장하셨습니다.</li>`;
                             chatLogs.scrollTop = chatLogs.scrollHeight;
                         } else {
                             chatLogs.scrollTop = chatLogs.scrollHeight;
                         };
                         lastChat.chatId = data.lastId;
                         break;
-                    case 'chat':
-                        if ((data.id === '{{session.id}}') || (data.id === 'unknown' && !`{{session}}`)) {
-                            chatLogs.innerHTML += `<li style='text-align: right; color: red;'>${data.id}님의 메세지: ${data.msg}</li>`;
+                    case "chat":
+                        if ((data.id === "{{session.id}}") || (data.id === "unknown" && !`{{session}}`)) {
+                            chatLogs.innerHTML += `<li style="text-align: right; color: red;">${data.id}님의 메세지: ${data.msg}</li>`;
                             chatLogs.scrollTop = chatLogs.scrollHeight;
                         } else {
-                            chatLogs.innerHTML += `<li style='text-align: left;'>${data.id}님의 메세지: ${data.msg}</li>`;
+                            chatLogs.innerHTML += `<li style="text-align: left;">${data.id}님의 메세지: ${data.msg}</li>`;
                             chatLogs.scrollTop = chatLogs.scrollHeight;
                             lastChat.chatId += 1;
                         };
                         lastChat.author = data.id;
                         lastChat.body = data.msg;
                         break;
-                }
+                };
             };
             //message button click
-            const button = document.getElementById('sendMessage');
+            const button = document.getElementById("sendMessage");
             button.onclick = () => {
-                let msgForm = document.getElementById('msgForm');
-                if (msgForm.value === '') {
+                let msgForm = document.getElementById("msgForm");
+                if (msgForm.value === "") {
                     return;
                 } else {
-                    lastChat.author = '{{session.id}}';
+                    lastChat.author = "{{session.id}}";
                     lastChat.body = msgForm.value;
                     lastChat.chatId += 1;
                     let sendData = {
-                        event: 'chat',
+                        event: "chat",
                         msg: msgForm.value,
                     };
                     ws.send(JSON.stringify(sendData));
-                    msgForm.value = '';
+                    msgForm.value = "";
                 };
             };
         };

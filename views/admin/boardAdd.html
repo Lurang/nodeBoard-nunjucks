@@ -1,18 +1,18 @@
-{% extends 'index.html' %}
+{% extends "index.html" %}
 
 {% block body %}
-<form action='/admin/boardAdd' method='POST'>
-    <ul class='form-style'>
+<form action="/admin/boardAdd" method="POST">
+    <ul class="form-style">
         <li>
             <label>BoardName</label>
-            <input type='text' name='name' class='field-long'/>
+            <input type="text" name="name" class="field-long"/>
         </li>
         <li>
             <label>Admin-Only</label>
-            <input type='checkbox' name='admin' value='1'/>
+            <input type="checkbox" name="admin" value="1"/>
         </li>
         <li>
-            <input type='submit' value='Add'/>
+            <input type="submit" value="Add"/>
         </li>
     </ul>
 </form>

@@ -1,4 +1,4 @@
-{% extends 'index.html' %}
+{% extends "index.html" %}
 {% block css %}
 <style>
 .main {
@@ -44,35 +44,35 @@
 {% endblock %}
 {% block body %}
     {% macro form(board_name, board_id, post_title, post_id, post_body, page, valueAttr) %}
-        <div class='mainContainer' role='main'>
-            <div class='leftDiv'>
+        <div class="mainContainer" role="main">
+            <div class="leftDiv">
                 <h2>{{board_name}}</h2>
                 {% block formLink %}
-                <form name='form' action='/board/{{board_id}}/{{post_id}}/updatePost?page={{page}}' method='post'>
+                <form name="form" action="/board/{{board_id}}/{{post_id}}/updatePost?page={{page}}" method="post">
                 {% endblock %}
-                    <div class='mb-3'>
-                        <label class='postTitle'>제목</label>
-                        <input type='text' name='title' id='title' {{valueAttr}}='{{post_title}}'/>
+                    <div class="mb-3">
+                        <label class="postTitle">제목</label>
+                        <input type="text" name="title" id="title" {{valueAttr}}="{{post_title}}"/>
                     </div>
-                    <div class='mb-3'>
-                        <label class='postTitle'>내용</label>
-                        <textarea rows='15' name='body' id='body' {{valueAttr}}='{{post_body}}'>{{post_body}}</textarea>
+                    <div class="mb-3">
+                        <label class="postTitle">내용</label>
+                        <textarea rows="15" name="body" id="body" {{valueAttr}}="{{post_body}}">{{post_body}}</textarea>
                     </div>			
-                    <div class='buttonDiv'>
-                        <input type='button' class='mb3Button' onclick='titleTest()' value='저장'/>
+                    <div class="buttonDiv">
+                        <input type="button" class="mb3Button" onclick="titleTest()" value="저장"/>
                         <li></li>
                     </div>
                 </form>
             </div>
-            <div class='marginDiv'></div>
+            <div class="marginDiv"></div>
         </div>
         <script>
             const titleTest = () => {
                 const postForm = document.form;
                 const title = postForm.title.value;
                 //앞뒤 여백체크?
-                if (title === '' || title.trim() !== title) {
-                    return alert('알맞은 제목을 입력해 주세요.');
+                if (title === "" || title.trim() !== title) {
+                    return alert("알맞은 제목을 입력해 주세요.");
                 } else {
                     postForm.submit();
                 };
@@ -81,7 +81,7 @@
     {% endmacro %}
     
     {% block macro %}
-        {{form(info.board_name, info.board_id, info.post_title, info.post_id, info.post_body, page, 'value')}}
+        {{form(info.board_name, info.board_id, info.post_title, info.post_id, info.post_body, page, "value")}}
     {% endblock %}
 
 {% endblock %}
