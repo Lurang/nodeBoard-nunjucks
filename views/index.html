@@ -219,21 +219,23 @@
                 };
             };
             //message button click
-            const button = document.getElementById("sendMessage");
-            button.onclick = () => {
-                let msgForm = document.getElementById("msgForm");
-                if (msgForm.value === "") {
-                    return;
-                } else {
-                    lastChat.author = "{{session.id}}";
-                    lastChat.body = msgForm.value;
-                    lastChat.chatId += 1;
-                    let sendData = {
-                        event: "chat",
-                        msg: msgForm.value,
+            if ("{{session.id}}") {
+                const button = document.getElementById("sendMessage");
+                button.onclick = () => {
+                    let msgForm = document.getElementById("msgForm");
+                    if (msgForm.value === "") {
+                        return;
+                    } else {
+                        lastChat.author = "{{session.id}}";
+                        lastChat.body = msgForm.value;
+                        lastChat.chatId += 1;
+                        let sendData = {
+                            event: "chat",
+                            msg: msgForm.value,
+                        };
+                        ws.send(JSON.stringify(sendData));
+                        msgForm.value = "";
                     };
-                    ws.send(JSON.stringify(sendData));
-                    msgForm.value = "";
                 };
             };
         };
